@@ -3,14 +3,14 @@ const ONE_HOSTNAME_LABEL = '[^.:/]+';
 const REGEXP_METACHARACTERS = /[.*+?^${}()|[\]\\]/g;
 const ESCAPED_ASTERISK = '\\*';
 
-function anchoredPattern(configured: string): RegExp {
-  const literal = configured.replace(REGEXP_METACHARACTERS, '\\$&');
+function anchoredPattern(origin: string): RegExp {
+  const literal = origin.replace(REGEXP_METACHARACTERS, '\\$&');
 
   return new RegExp(`^${literal.replaceAll(ESCAPED_ASTERISK, ONE_HOSTNAME_LABEL)}$`);
 }
 
-export function originPatterns(configured: string | undefined): RegExp[] {
-  const entries = (configured ?? '')
+export function originPatterns(configuredOrigins: string | undefined): RegExp[] {
+  const entries = (configuredOrigins ?? '')
     .split(',')
     .map((entry) => entry.trim())
     .filter((entry) => entry.length > 0);

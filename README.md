@@ -32,19 +32,19 @@ in-memory implementations, so it needs neither a database nor a running server.
 
 The API reads two Postgres connection strings and the origins it accepts browser requests from:
 
-| Variable       | Used by          | Value                                  |
-| -------------- | ---------------- | -------------------------------------- |
-| `DATABASE_URL` | the running API  | the pooled connection                  |
-| `DIRECT_URL`   | `prisma migrate` | the direct connection                  |
-| `WEB_ORIGINS`  | the running API  | comma-separated origins, `*` permitted |
+| Variable       | Used by          | Value                                 |
+| -------------- | ---------------- | ------------------------------------- |
+| `DATABASE_URL` | the running API  | the pooled connection                 |
+| `DIRECT_URL`   | `prisma migrate` | the direct connection                 |
+| `WEB_ORIGINS`  | the running API  | comma-separated origins, wildcards ok |
 
 The web app reads `VITE_API_URL`, the base URL of the API. Both apps fall back to their local
 defaults, so `pnpm install` and two `dev` commands are enough once `DATABASE_URL` points
 somewhere.
 
-An entry in `WEB_ORIGINS` is matched whole, and a `*` in it stands for exactly one hostname
-label — it never spans a `.`, a `:` or a `/`. One entry therefore covers every preview
-deployment of a project without covering anybody else's:
+An entry in `WEB_ORIGINS` is a whole origin, matched whole, in which a `*` stands for exactly one
+hostname label — it never spans a `.`, a `:` or a `/`, so `*` on its own matches nothing. One
+entry therefore covers every preview deployment of a project without covering anybody else's:
 
 ```
 WEB_ORIGINS=https://fibopoker.vercel.app,https://fibopoker-*-<team-slug>.vercel.app
@@ -76,11 +76,14 @@ so the only thing set in the dashboard is the root directory and the environment
 | api     | `apps/api`     | `DATABASE_URL`, `DIRECT_URL`, `WEB_ORIGINS` |
 
 `VITE_API_URL` is read when the web app is **built**, not when it runs, so changing it needs a
-redeploy. A deployed build with it unset fails rather than silently calling `localhost`.
+redeploy. Left unset, the bundle calls `localhost` and every request fails in the browser.
 
 The API deploys as a single captured Node server: Vercel picks up `apps/api/server.js`, which
-does nothing but load `dist/main.js`. That indirection is load-bearing — see ADR 0005. The
-API's build command applies pending migrations over `DIRECT_URL` before the server is bundled,
-so a migration that fails takes the deployment down with it rather than reaching production.
+does nothing but load `dist/main.js`. That indirection is load-bearing — see ADR 0005.
+
+The API's build command applies pending migrations over `DIRECT_URL`, but only on a production
+deployment, and only once the workspace has compiled. Both halves matter: a preview that
+migrated would move the schema of the one database production is already serving, and migrating
+before compiling could leave the schema ahead of code that then failed to build.
 
 Both projects install with a `pnpm --filter` so a deployment pulls only the workspaces it needs.
