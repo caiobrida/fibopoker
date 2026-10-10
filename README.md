@@ -1,6 +1,6 @@
 # fibopoker
 
-A team estimates tasks in Fibonacci points together. Anyone opens a Room, shares its link, and votes — no accounts, no sign-up, no limit on how many estimates a Room can hold.
+A team estimates tasks in Fibonacci points together. Anyone opens a Room, shares its link, and votes — no accounts, no sign-up, no limit on how many Rounds a Room can hold.
 
 The domain language is in [`CONTEXT.md`](./CONTEXT.md). The decisions behind the build are in [`docs/adr/`](./docs/adr/).
 

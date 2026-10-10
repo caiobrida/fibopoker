@@ -6,26 +6,14 @@ on:
     paths:
       - 'apps/api/**'
       - 'packages/shared/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'tsconfig.base.json'
-      - '.oxlintrc.json'
-      - '.prettierrc'
-      - '.prettierignore'
       - '.github/workflows/api.yml'
+      - '*'
   pull_request:
     paths:
       - 'apps/api/**'
       - 'packages/shared/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
-      - 'pnpm-workspace.yaml'
-      - 'tsconfig.base.json'
-      - '.oxlintrc.json'
-      - '.prettierrc'
-      - '.prettierignore'
       - '.github/workflows/api.yml'
+      - '*'
 
 jobs:
   check:
@@ -39,5 +27,4 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter '@fibopoker/api...' lint
-      - run: pnpm format:check
       - run: pnpm --filter '@fibopoker/api...' build

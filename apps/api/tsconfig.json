@@ -3,14 +3,10 @@
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
-    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false,
     "declaration": true,
     "sourceMap": true,
-    "removeComments": true,
     "incremental": true,
     "outDir": "./dist",
     "types": ["node"]
