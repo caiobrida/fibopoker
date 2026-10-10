@@ -1,0 +1,5 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install --filter '@fibopoker/api...' --frozen-lockfile",
+  "buildCommand": "pnpm exec prisma generate && pnpm exec prisma migrate deploy && pnpm --filter '@fibopoker/api...' build"
+}

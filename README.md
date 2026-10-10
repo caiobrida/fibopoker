@@ -30,17 +30,29 @@ in-memory implementations, so it needs neither a database nor a running server.
 
 ## Environment
 
-The API reads two Postgres connection strings and the origin it accepts browser requests from:
+The API reads two Postgres connection strings and the origins it accepts browser requests from:
 
-| Variable       | Used by          | Value                            |
-| -------------- | ---------------- | -------------------------------- |
-| `DATABASE_URL` | the running API  | the pooled connection            |
-| `DIRECT_URL`   | `prisma migrate` | the direct connection            |
-| `WEB_ORIGIN`   | the running API  | where the web app is served from |
+| Variable       | Used by          | Value                                  |
+| -------------- | ---------------- | -------------------------------------- |
+| `DATABASE_URL` | the running API  | the pooled connection                  |
+| `DIRECT_URL`   | `prisma migrate` | the direct connection                  |
+| `WEB_ORIGINS`  | the running API  | comma-separated origins, `*` permitted |
 
 The web app reads `VITE_API_URL`, the base URL of the API. Both apps fall back to their local
 defaults, so `pnpm install` and two `dev` commands are enough once `DATABASE_URL` points
 somewhere.
+
+An entry in `WEB_ORIGINS` is matched whole, and a `*` in it stands for exactly one hostname
+label — it never spans a `.`, a `:` or a `/`. One entry therefore covers every preview
+deployment of a project without covering anybody else's:
+
+```
+WEB_ORIGINS=https://fibopoker.vercel.app,https://fibopoker-*-<team-slug>.vercel.app
+```
+
+The team slug is what makes that safe: a preview in someone else's Vercel account is named after
+their slug, so it cannot match. `https://evil-fibopoker.vercel.app` and
+`https://fibopoker.vercel.app.evil.com` do not match either.
 
 ## Database
 
@@ -52,3 +64,23 @@ From `apps/api`:
 - `npx prisma migrate dev --name <what-changed>` — write a migration and apply it locally
 - `npx prisma migrate deploy` — apply pending migrations to the configured database
 - `npx prisma dev` — run a local Postgres to develop against
+
+## Deployment
+
+Two Vercel projects from this one repository, as ADR 0005 decided. Each owns its `vercel.json`,
+so the only thing set in the dashboard is the root directory and the environment.
+
+| Project | Root directory | Environment                                 |
+| ------- | -------------- | ------------------------------------------- |
+| web     | `apps/web`     | `VITE_API_URL`                              |
+| api     | `apps/api`     | `DATABASE_URL`, `DIRECT_URL`, `WEB_ORIGINS` |
+
+`VITE_API_URL` is read when the web app is **built**, not when it runs, so changing it needs a
+redeploy. A deployed build with it unset fails rather than silently calling `localhost`.
+
+The API deploys as a single captured Node server: Vercel picks up `apps/api/server.js`, which
+does nothing but load `dist/main.js`. That indirection is load-bearing — see ADR 0005. The
+API's build command applies pending migrations over `DIRECT_URL` before the server is bundled,
+so a migration that fails takes the deployment down with it rather than reaching production.
+
+Both projects install with a `pnpm --filter` so a deployment pulls only the workspaces it needs.
