@@ -11,7 +11,8 @@ const STATUS_BY_CODE: Record<ApiErrorCode, HttpStatus> = {
 export class DomainErrorFilter implements ExceptionFilter<DomainError> {
   catch(error: DomainError, host: ArgumentsHost): void {
     const body: ApiError = { code: error.code, message: error.message };
+    const response = host.switchToHttp().getResponse<Response>();
 
-    host.switchToHttp().getResponse<Response>().status(STATUS_BY_CODE[error.code]).json(body);
+    response.status(STATUS_BY_CODE[error.code]).json(body);
   }
 }

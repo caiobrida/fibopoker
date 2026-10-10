@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useRoomState } from '../shared/api/index.ts';
 import { Button } from '../shared/ui/Button.tsx';
-import { roomPath } from './room-path.ts';
+import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
+import { roomUrl } from './room-path.ts';
 import styles from './RoomScreen.module.css';
 
 type CopyOutcome = 'untouched' | 'copied' | 'blocked';
@@ -26,33 +27,31 @@ export function RoomScreen() {
 
   if (state.status === 'resolving') {
     return (
-      <main className={styles.screen}>
-        <p className={styles.lead}>Opening the Room…</p>
-      </main>
+      <Screen>
+        <Lead>Opening the Room…</Lead>
+      </Screen>
     );
   }
 
   if (state.status === 'absent') {
     return (
-      <main className={styles.screen}>
-        <h1 className={styles.heading}>No such Room</h1>
-        <p className={styles.lead}>
-          This link does not lead to a Room. Ask whoever shared it for the current one.
-        </p>
-      </main>
+      <Screen>
+        <Heading>No such Room</Heading>
+        <Lead>This link does not lead to a Room. Ask whoever shared it for the current one.</Lead>
+      </Screen>
     );
   }
 
   if (state.status === 'unreachable') {
     return (
-      <main className={styles.screen}>
-        <h1 className={styles.heading}>The Room is out of reach</h1>
-        <p className={styles.lead}>{state.reason}</p>
-      </main>
+      <Screen>
+        <Heading>The Room is out of reach</Heading>
+        <Lead>{state.reason}</Lead>
+      </Screen>
     );
   }
 
-  const link = new URL(roomPath(state.room.id), window.location.origin).href;
+  const link = roomUrl(state.room.id);
 
   async function copyLink() {
     try {
@@ -64,14 +63,14 @@ export function RoomScreen() {
   }
 
   return (
-    <main className={styles.screen}>
-      <h1 className={styles.heading}>The Room is open</h1>
-      <p className={styles.lead}>
+    <Screen>
+      <Heading>The Room is open</Heading>
+      <Lead>
         Paste this link wherever the team talks. It keeps working for as long as the team keeps
         using it.
-      </p>
+      </Lead>
       <div className={styles.share}>
-        <p className={styles.shareLabel}>Room link</p>
+        <Note>Room link</Note>
         <p className={styles.link}>{link}</p>
         <div>
           <Button variant="secondary" onClick={() => void copyLink()}>
@@ -79,11 +78,9 @@ export function RoomScreen() {
           </Button>
         </div>
         {copyOutcome === 'blocked' ? (
-          <p className={styles.notice}>
-            The browser blocked copying — select the link above and copy it by hand.
-          </p>
+          <Note>The browser blocked copying — select the link above and copy it by hand.</Note>
         ) : null}
       </div>
-    </main>
+    </Screen>
   );
 }
