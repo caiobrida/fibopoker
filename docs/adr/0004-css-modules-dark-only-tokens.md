@@ -12,15 +12,14 @@ Light mode is not a goal, but the token layer is what keeps it from becoming a r
 
 What the tokens resolve to. These are starting values matched to the reference product — calibrate against it rather than treating them as sacred, but change them here, in one place.
 
-| Token               | Value     | Role                |
-| ------------------- | --------- | ------------------- |
-| `--bg-base`         | `#212121` | main surface        |
-| `--bg-recessed`     | `#171717` | wells, sidebars     |
-| `--surface-elevated`| `#2f2f2f` | inputs, cards       |
-| `--border-subtle`   | `#383838` | dividers            |
-| `--text-primary`    | `#ececec` | body and headings   |
-| `--text-secondary`  | `#b4b4b4` | supporting text     |
-| primary action      | inverted  | near-white surface, dark text — not a brand colour |
+| Token                | Value     | Role                                               |
+| -------------------- | --------- | -------------------------------------------------- |
+| `--bg-base`          | `#212121` | main surface                                       |
+| `--bg-recessed`      | `#171717` | wells, sidebars                                    |
+| `--surface-elevated` | `#2f2f2f` | inputs, cards                                      |
+| `--border-subtle`    | `#383838` | dividers                                           |
+| `--text-primary`     | `#ececec` | body and headings                                  |
+| `--text-secondary`   | `#b4b4b4` | supporting text                                    |
+| primary action       | inverted  | near-white surface, dark text — not a brand colour |
 
 The two state colours are deliberately left unfixed here. They have to be desaturated enough to sit inside this palette without shouting, and choosing them against the real revealed-Round screen beats choosing them in the abstract. One reads as voted and consensus, the other as divergence.
-

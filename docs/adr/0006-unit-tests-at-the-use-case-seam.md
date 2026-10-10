@@ -9,4 +9,4 @@ Two deliberate design consequences:
 1. **The repository interface is a test seam, not speculative indirection.** The in-memory fake is its second implementation, which is what justifies the abstraction existing at all.
 2. **Time is a dependency, never ambient.** Nothing calls `new Date()` directly. The 60-second activity window that decides who counts as present is only testable because `Clock` is injected, and a test can move time forward instead of sleeping.
 
-An HTTP-level suite was considered: one seam, higher up, surviving any internal refactor. It was rejected for the MVP on speed and setup cost. Should it ever be added, it belongs *alongside* these tests at the same seam count, replacing them rather than layering on top.
+An HTTP-level suite was considered: one seam, higher up, surviving any internal refactor. It was rejected for the MVP on speed and setup cost. Should it ever be added, it belongs _alongside_ these tests at the same seam count, replacing them rather than layering on top.
