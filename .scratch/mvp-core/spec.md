@@ -115,6 +115,8 @@ A Participant is identified by an opaque token, generated on joining and held in
 
 Reading the snapshot doubles as the heartbeat — it touches the Participant's last-seen time, so presence costs no extra request. A Participant is active if seen within the activity window; beyond it they leave the list and stop counting toward the voted tally. The window is generous enough that a backgrounded tab does not evict anyone.
 
+Falling outside the window removes a Participant from the tally but **never removes an Estimate they already cast**. The Estimate was legitimately given and still appears at the Reveal. The tally therefore counts only present Participants, and a revealed Round may well show more Estimates than that denominator — mildly odd to look at, and honest at both ends, which is the trade we chose.
+
 Time is injected, never ambient. Nothing reads the system clock directly, because the activity window is otherwise untestable without sleeping.
 
 ### Data model
@@ -180,7 +182,7 @@ The invariants, stated as rules:
 - A Participant has at most one Estimate per Round; voting again replaces it while the Round is open.
 - A Participant who leaves an open Round takes their Estimate with them; a revealed Round keeps it.
 - A Spectator never appears in the voted tally, in either the numerator or the denominator.
-- A Participant not seen within the activity window stops being present and stops counting toward the tally.
+- A Participant not seen within the activity window stops being present and stops counting toward the tally, while any Estimate they already cast remains and is still shown at the Reveal.
 - A re-vote opens a new Round carrying the title, leaving the previous Round and its Estimates untouched.
 - Every mutation to a Room's data advances that Room's revision.
 - A Participant token is valid only for the Room it was issued for.
