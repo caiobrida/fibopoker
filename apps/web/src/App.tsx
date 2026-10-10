@@ -1,14 +1,15 @@
-import { DECK } from '@fibopoker/shared';
+import { BrowserRouter, Route, Routes } from 'react-router';
+import { CreateRoomScreen } from './routes/CreateRoomScreen.tsx';
+import { ROOM_ROUTE } from './routes/room-path.ts';
+import { RoomScreen } from './routes/RoomScreen.tsx';
 
 export function App() {
   return (
-    <main>
-      <h1>fibopoker</h1>
-      <ul>
-        {DECK.map((value) => (
-          <li key={value}>{value}</li>
-        ))}
-      </ul>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<CreateRoomScreen />} />
+        <Route path={ROOM_ROUTE} element={<RoomScreen />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -24,3 +24,31 @@ From the repository root:
 - `pnpm format` — prettier, in place; `pnpm format:check` to only report
 
 To run an app: `pnpm --filter @fibopoker/web dev`, or `pnpm --filter @fibopoker/api start:dev`.
+
+The API's test suite: `pnpm --filter @fibopoker/api test`. It drives the use cases against
+in-memory implementations, so it needs neither a database nor a running server.
+
+## Environment
+
+The API reads two Postgres connection strings and the origin it accepts browser requests from:
+
+| Variable       | Used by          | Value                            |
+| -------------- | ---------------- | -------------------------------- |
+| `DATABASE_URL` | the running API  | the pooled connection            |
+| `DIRECT_URL`   | `prisma migrate` | the direct connection            |
+| `WEB_ORIGIN`   | the running API  | where the web app is served from |
+
+The web app reads `VITE_API_URL`, the base URL of the API. Both apps fall back to their local
+defaults, so `pnpm install` and two `dev` commands are enough once `DATABASE_URL` points
+somewhere.
+
+## Database
+
+The Prisma schema and its migrations live in `apps/api/prisma`. The client is generated into
+`apps/api/src/generated`, which is not in version control — `pnpm install` regenerates it.
+
+From `apps/api`:
+
+- `npx prisma migrate dev --name <what-changed>` — write a migration and apply it locally
+- `npx prisma migrate deploy` — apply pending migrations to the configured database
+- `npx prisma dev` — run a local Postgres to develop against
