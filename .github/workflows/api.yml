@@ -8,12 +8,14 @@ on:
       - 'packages/shared/**'
       - '.github/workflows/api.yml'
       - '*'
+      - '!*.md'
   pull_request:
     paths:
       - 'apps/api/**'
       - 'packages/shared/**'
       - '.github/workflows/api.yml'
       - '*'
+      - '!*.md'
 
 jobs:
   check:
@@ -28,3 +30,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter '@fibopoker/api...' lint
       - run: pnpm --filter '@fibopoker/api...' build
+      - run: pnpm --filter '@fibopoker/api...' test
