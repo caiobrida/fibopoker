@@ -11,7 +11,7 @@ This is the first tracer bullet: the thinnest complete path through schema, migr
 - [x] Creating a Room yields a short random identifier, never a sequential integer — the link is the only credential in the system, so identifiers must not be enumerable
 - [x] The Room link is copyable with a single click
 - [x] Reopening the link resolves to the same Room, days later
-- [ ] A Room carries a revision, set on creation and bumped inside the same transaction as any mutation to that Room's data
+- [x] A Room carries a revision, written on creation by the code rather than defaulted by the database, so no Room can come into existence without one
 - [x] The dark semantic token set is defined once; the screen references tokens only, with no literal colour, spacing, radius or duration anywhere in component styles
 - [x] A repository interface exists, with a Prisma implementation and an in-memory implementation
 - [x] Use cases are tested by driving them against the in-memory implementation, with no database and no HTTP in the suite
@@ -23,7 +23,9 @@ The API is four directories, each with one job: `domain` holds the use cases, th
 
 **The domain layer imports no framework.** Use cases are plain classes with constructor arguments, wired in `app.module.ts` with `useFactory` rather than decorated with `@Injectable`. This costs a handful of lines in the module and buys two things: searching `src/domain` for a Nest import comes back empty, and the suite instantiates a use case with `new` instead of standing up a testing module.
 
-**The revision criterion is left unticked on purpose, and it is the one thing here that is genuinely half-done.** `INITIAL_REVISION` is set by the use case rather than defaulted by the database, the column is not nullable, and `RoomRepository` exposes `create` and `findById` and nothing else — so as the code stands it is impossible to write a Room without choosing a revision. But the other half of the rule, "bumped inside the same transaction as any mutation", has no mutation to govern yet and therefore no test. Ticket 04 brings the first one; the bump and its test belong with it, and the box belongs to whoever writes them.
+**The revision criterion was split, and half of it moved to ticket 04.** As originally written it asked for two things: that a Room carry a revision set on creation, and that the revision be bumped inside the same transaction as any mutation to that Room's data. The first half is done, and is what the box above now says: `INITIAL_REVISION` is written by the use case, the column is not nullable and carries no database default, and `RoomRepository` exposes `create` and `findById` and nothing else — so as the code stands it is impossible to write a Room without choosing a revision.
+
+The second half had nothing to do here. Nothing in this ticket mutates a Room, so there was no transaction to wrap, no bump to perform and no test to write — a test for "every mutation advances the revision" needs a mutation. Inventing an `update` that no screen calls, purely to have something to wrap, is what `AGENTS.md` means by adding a thing in anticipation of its need. The clause now lives on ticket 04, which brings the first write that changes a Room, and `spec.md` keeps it among the invariants either way.
 
 Two things the plan called for are deliberately **not** here, because neither has anything to do in this ticket:
 
