@@ -8,12 +8,14 @@ on:
       - 'packages/shared/**'
       - '.github/workflows/api.yml'
       - '*'
+      - '!*.md'
   pull_request:
     paths:
       - 'apps/api/**'
       - 'packages/shared/**'
       - '.github/workflows/api.yml'
       - '*'
+      - '!*.md'
 
 jobs:
   check:
