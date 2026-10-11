@@ -1,26 +1,60 @@
-import type { RoomSnapshot } from '@fibopoker/shared';
-import { skipToken, useQuery } from '@tanstack/react-query';
-import { fetchRoomSnapshot } from './client.ts';
+import type { Participant, RoomSnapshot } from '@fibopoker/shared';
+import { useQuery } from '@tanstack/react-query';
+import { fetchRoomSnapshot, StaleIdentityError } from './client.ts';
+import { forgetToken, storedToken } from './participant-token.ts';
 
 export type RoomState =
   | { status: 'resolving' }
-  | { status: 'present'; room: RoomSnapshot }
+  | { status: 'unidentified'; room: RoomSnapshot }
+  | { status: 'present'; room: RoomSnapshot; self: Participant }
   | { status: 'absent' }
   | { status: 'unreachable'; reason: string };
 
-export function useRoomState(roomId: string | undefined): RoomState {
+async function readRoom(roomId: string): Promise<RoomSnapshot | null> {
+  const token = storedToken(roomId);
+
+  if (token === null) {
+    return fetchRoomSnapshot(roomId, null);
+  }
+
+  try {
+    return await fetchRoomSnapshot(roomId, token);
+  } catch (failure) {
+    if (!(failure instanceof StaleIdentityError)) {
+      throw failure;
+    }
+
+    forgetToken(roomId);
+
+    return fetchRoomSnapshot(roomId, null);
+  }
+}
+
+function selfIn(room: RoomSnapshot): Participant | undefined {
+  return room.participants.find(({ id }) => id === room.selfId);
+}
+
+export function roomQueryKey(roomId: string): unknown[] {
+  return ['room', roomId];
+}
+
+export function useRoomState(roomId: string): RoomState {
   const query = useQuery({
-    queryKey: ['room', roomId],
-    queryFn: roomId === undefined ? skipToken : () => fetchRoomSnapshot(roomId),
+    queryKey: roomQueryKey(roomId),
+    queryFn: () => readRoom(roomId),
     retry: false,
   });
 
-  if (roomId === undefined || query.data === null) {
+  if (query.data === null) {
     return { status: 'absent' };
   }
 
   if (query.data !== undefined) {
-    return { status: 'present', room: query.data };
+    const self = selfIn(query.data);
+
+    return self === undefined
+      ? { status: 'unidentified', room: query.data }
+      : { status: 'present', room: query.data, self };
   }
 
   return query.error === null

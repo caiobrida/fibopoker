@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-export const API_ERROR_CODES = ['room_not_found'] as const;
+export const API_ERROR_CODES = [
+  'room_not_found',
+  'unknown_participant',
+  'invalid_request',
+] as const;
 
 export const apiErrorSchema = z.object({
   code: z.enum(API_ERROR_CODES),

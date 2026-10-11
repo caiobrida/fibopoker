@@ -1,8 +1,11 @@
+import type { Participant, RoomSnapshot } from '@fibopoker/shared';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { useRoomState } from '../shared/api/index.ts';
+import { useJoinRoom, useRoomState } from '../shared/api/index.ts';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
+import { JoinRoomForm } from './JoinRoomForm.tsx';
+import { ParticipantList } from './ParticipantList.tsx';
 import { roomUrl } from './room-path.ts';
 import styles from './RoomScreen.module.css';
 
@@ -10,9 +13,32 @@ type CopyOutcome = 'untouched' | 'copied' | 'blocked';
 
 const COPY_FEEDBACK_MS = 2000;
 
+function nicknameSharedWithSomebodyElse(room: RoomSnapshot, self: Participant): boolean {
+  return room.participants.some(
+    (participant) =>
+      participant.id !== self.id &&
+      participant.nickname.toLowerCase() === self.nickname.toLowerCase(),
+  );
+}
+
 export function RoomScreen() {
   const { roomId } = useParams();
+
+  return roomId === undefined ? <NoSuchRoom /> : <Room roomId={roomId} />;
+}
+
+function NoSuchRoom() {
+  return (
+    <Screen>
+      <Heading>No such Room</Heading>
+      <Lead>This link does not lead to a Room. Ask whoever shared it for the current one.</Lead>
+    </Screen>
+  );
+}
+
+function Room({ roomId }: { roomId: string }) {
   const state = useRoomState(roomId);
+  const joinRoom = useJoinRoom(roomId);
   const [copyOutcome, setCopyOutcome] = useState<CopyOutcome>('untouched');
 
   useEffect(() => {
@@ -34,12 +60,7 @@ export function RoomScreen() {
   }
 
   if (state.status === 'absent') {
-    return (
-      <Screen>
-        <Heading>No such Room</Heading>
-        <Lead>This link does not lead to a Room. Ask whoever shared it for the current one.</Lead>
-      </Screen>
-    );
+    return <NoSuchRoom />;
   }
 
   if (state.status === 'unreachable') {
@@ -47,6 +68,19 @@ export function RoomScreen() {
       <Screen>
         <Heading>The Room is out of reach</Heading>
         <Lead>{state.reason}</Lead>
+      </Screen>
+    );
+  }
+
+  if (state.status === 'unidentified') {
+    return (
+      <Screen>
+        <Heading>Join the Room</Heading>
+        <Lead>
+          Pick a nickname the team will recognise. No account, no sign-up, and nothing to confirm.
+        </Lead>
+        <JoinRoomForm action={joinRoom} />
+        <ParticipantList participants={state.room.participants} selfId={null} />
       </Screen>
     );
   }
@@ -66,9 +100,13 @@ export function RoomScreen() {
     <Screen>
       <Heading>The Room is open</Heading>
       <Lead>
-        Paste this link wherever the team talks. It keeps working for as long as the team keeps
-        using it.
+        You are in as {state.self.nickname}. Paste this link wherever the team talks — it keeps
+        working for as long as the team keeps using it.
       </Lead>
+      {nicknameSharedWithSomebodyElse(state.room, state.self) ? (
+        <Note>Somebody else in the Room answers to that nickname too.</Note>
+      ) : null}
+      <ParticipantList participants={state.room.participants} selfId={state.self.id} />
       <div className={styles.share}>
         <Note>Room link</Note>
         <p className={styles.link}>{link}</p>

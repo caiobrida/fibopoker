@@ -11,5 +11,20 @@ model Room {
   id       String @id
   revision Int
 
+  participants Participant[]
+
   @@map("rooms")
+}
+
+model Participant {
+  id        String   @id
+  roomId    String   @map("room_id")
+  nickname  String
+  tokenHash String   @map("token_hash")
+  joinedAt  DateTime @map("joined_at") @db.Timestamptz(3)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, tokenHash])
+  @@map("participants")
 }

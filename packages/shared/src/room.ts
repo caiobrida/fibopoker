@@ -1,15 +1,16 @@
 import { z } from 'zod';
+import { nanoIdSchema } from './nano-id.js';
+import { participantIdSchema, participantSchema } from './participant.js';
 
 export const ROOM_ID_LENGTH = 12;
 
-export const roomIdSchema = z
-  .string()
-  .length(ROOM_ID_LENGTH)
-  .regex(/^[A-Za-z0-9_-]+$/);
+export const roomIdSchema = nanoIdSchema(ROOM_ID_LENGTH);
 
 export const roomSnapshotSchema = z.object({
   id: roomIdSchema,
   revision: z.number().int().positive(),
+  participants: z.array(participantSchema),
+  selfId: participantIdSchema.nullable(),
 });
 
 export type RoomSnapshot = z.infer<typeof roomSnapshotSchema>;

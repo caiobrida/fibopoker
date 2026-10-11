@@ -89,10 +89,10 @@ Two Vercel projects with root directories `apps/web` and `apps/api`. CORS allowl
 
 Accounts and login · backlog import · average or median on screen · host/facilitator role · light mode · removing a participant · reordering or deleting Rounds · sound on reveal · "is choosing" indicator · per-Round timer · editing a revealed Round's title.
 
-## Open micro-decisions
+## Settled micro-decisions
 
-Small enough to decide at the keyboard, listed so they are chosen rather than defaulted:
+Three were left to be decided at the keyboard, listed so they would be chosen rather than defaulted. All three went the way the lean pointed, and none is open any more:
 
-1. **Polling mechanics** — TanStack Query (`refetchInterval` accepts a function, and it already knows about window focus and background tabs) versus a hand-rolled hook. Leaning TanStack Query: the adaptive interval and the background behaviour are exactly what it does.
-2. **Participant token at rest** — store the raw token or a sha256 of it. Leaning the hash: lookup stays a deterministic single query, and a database dump then leaks nobody's identity.
-3. **Routing** — React Router for two routes, or something smaller. Leaning React Router; it is two routes either way and it is what any contributor expects.
+1. **Polling mechanics** — **TanStack Query**, chosen in ticket 02. `refetchInterval` accepts a function and the library already knows about window focus and background tabs, which is exactly the adaptive interval ticket 05 needs.
+2. **Participant token at rest** — **a sha256 of it**, chosen in ticket 04. A database dump identifies nobody, and the deterministic digest is what lets a presented token be matched at all. The match happens in memory over the Room aggregate the snapshot has already loaded, so the `(room_id, token_hash)` unique index serves as a constraint rather than as a lookup path.
+3. **Routing** — **React Router**, chosen in ticket 02. Two routes either way, and it is what any contributor expects.

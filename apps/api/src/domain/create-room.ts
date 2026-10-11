@@ -7,10 +7,14 @@ export class CreateRoom {
   constructor(private readonly rooms: RoomRepository) {}
 
   async execute(): Promise<RoomSnapshot> {
-    const room: Room = { id: nanoid(ROOM_ID_LENGTH), revision: INITIAL_REVISION };
+    const room: Room = {
+      id: nanoid(ROOM_ID_LENGTH),
+      revision: INITIAL_REVISION,
+      participants: [],
+    };
 
     await this.rooms.create(room);
 
-    return snapshotOf(room);
+    return snapshotOf(room, null);
   }
 }
