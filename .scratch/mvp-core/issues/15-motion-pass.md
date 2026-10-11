@@ -1,12 +1,12 @@
 # 15 — Motion pass
 
-**What to build:** Every moment in the session that deserves motion, got it — and every moment that got it, deserved it. This is the second cross-cutting ticket in the set, and the sibling of ticket 12: that one makes the screens work at phone width, this one makes them feel like one product rather than a sequence of states.
+**What to build:** Every moment in the session that deserves motion, got it — and every moment that got it, deserved it. This is the second cross-cutting ticket in the set, and the sibling of ticket 14: that one makes the screens work at phone width, this one makes them feel like one product rather than a sequence of states.
 
-It lands late because it needs every screen to exist first. The vocabulary it works in — duration and easing tokens, the reduced-motion rule — is established back in ticket 13, so this should be a sweep. If this ticket finds itself inventing curves or defining what an animation means, something earlier bypassed the token layer, exactly as ticket 12 says about literal spacing.
+It lands late because it needs every screen to exist first. The vocabulary it works in — duration and easing tokens, the reduced-motion rule — is established back in ticket 06, so this should be a sweep. If this ticket finds itself inventing curves or defining what an animation means, something earlier bypassed the token layer, exactly as ticket 14 says about literal spacing.
 
-**The Reveal is the moment that matters most.** Ticket 07 guarantees every Estimate becomes visible at the same instant, which is an integrity rule and is not negotiable here. What this ticket owns is that the Reveal _reads_ as the event it is — the whole table turning over together — without any choreography that leaks who voted first.
+**The Reveal is the moment that matters most.** Ticket 09 guarantees every Estimate becomes visible at the same instant, which is an integrity rule and is not negotiable here. What this ticket owns is that the Reveal _reads_ as the event it is — the whole table turning over together — without any choreography that leaks who voted first.
 
-**Blocked by:** 11 — Export the session · 12 — Mobile layout pass
+**Blocked by:** 13 — Export the session · 14 — Mobile layout pass
 
 **Status:** ready-for-agent
 
@@ -19,7 +19,7 @@ It lands late because it needs every screen to exist first. The vocabulary it wo
 - [ ] Nothing animates on an unchanged poll, anywhere
 - [ ] Every animation is suppressed under `prefers-reduced-motion`, and every screen remains fully usable and legible with it on
 - [ ] No literal duration or easing exists in any component; every one resolves to a token
-- [ ] Motion holds up at phone width, where ticket 12 has already settled the layout
+- [ ] Motion holds up at phone width, where ticket 14 has already settled the layout
 
 ## Notes
 
