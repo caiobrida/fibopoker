@@ -38,7 +38,7 @@ The screen now derives it from the one read it already has, which costs no call,
 
 Nicknames are compared case-insensitively, which no criterion asked for either way. Two people in a list as `Alice` and `alice` read as the same name to everyone looking at it, so treating them as a collision is what makes the warning mean anything.
 
-**`viewerId` was renamed `selfId` during review.** `CONTEXT.md` lists "viewer" among the words to avoid for **Spectator**, and Spectator arrives in ticket 10 — so the first name would have had the snapshot calling one thing a viewer while the glossary reserved that word for something else, in a contract package where renaming later is a contract change.
+**`viewerId` was renamed `selfId` during review.** `CONTEXT.md` lists "viewer" among the words to avoid for **Spectator**, and Spectator arrives in ticket 12 — so the first name would have had the snapshot calling one thing a viewer while the glossary reserved that word for something else, in a contract package where renaming later is a contract change.
 
 **Participants come back in arrival order, and the order is total.** `snapshotOf` sorts by `joined_at` and breaks ties on the identifier, so a read is identical to the one before it and nobody shifts position on reload — which is what "same place in the list" asks for. Two Participants who join inside the same millisecond are ordered by identifier rather than by who was truly first; the timestamp has millisecond precision and no one can perceive the difference. A test caught this by joining twice without moving the clock, and what it proved was that the test asserted arrival order where the only promise is stability — so it now asserts membership, and the ordering test moves the clock between joins.
 
