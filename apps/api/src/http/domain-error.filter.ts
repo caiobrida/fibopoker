@@ -5,6 +5,8 @@ import { DomainError } from '../domain/domain-error.js';
 
 const STATUS_BY_CODE: Record<ApiErrorCode, HttpStatus> = {
   room_not_found: HttpStatus.NOT_FOUND,
+  unknown_participant: HttpStatus.UNAUTHORIZED,
+  invalid_request: HttpStatus.BAD_REQUEST,
 };
 
 @Catch(DomainError)

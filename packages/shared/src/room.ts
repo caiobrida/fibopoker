@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { participantIdSchema, participantSchema } from './participant.js';
 
 export const ROOM_ID_LENGTH = 12;
 
@@ -10,6 +11,8 @@ export const roomIdSchema = z
 export const roomSnapshotSchema = z.object({
   id: roomIdSchema,
   revision: z.number().int().positive(),
+  participants: z.array(participantSchema),
+  viewerId: participantIdSchema.nullable(),
 });
 
 export type RoomSnapshot = z.infer<typeof roomSnapshotSchema>;
