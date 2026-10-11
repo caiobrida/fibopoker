@@ -5,9 +5,9 @@ import { useJoinRoom, useRoomState } from '../shared/api/index.ts';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
 import { JoinRoomForm } from './JoinRoomForm.tsx';
-import { ParticipantList } from './ParticipantList.tsx';
 import { roomUrl } from './room-path.ts';
 import styles from './RoomScreen.module.css';
+import { RoomTable } from './RoomTable.tsx';
 
 type CopyOutcome = 'untouched' | 'copied' | 'blocked';
 
@@ -33,6 +33,15 @@ function NoSuchRoom() {
       <Heading>No such Room</Heading>
       <Lead>This link does not lead to a Room. Ask whoever shared it for the current one.</Lead>
     </Screen>
+  );
+}
+
+function NoRoundYet() {
+  return (
+    <>
+      <p className={styles.awaiting}>No Round is open</p>
+      <Note>Somebody titles the first task when the team is ready to estimate it.</Note>
+    </>
   );
 }
 
@@ -74,13 +83,17 @@ function Room({ roomId }: { roomId: string }) {
 
   if (state.status === 'unidentified') {
     return (
-      <Screen>
-        <Heading>Join the Room</Heading>
-        <Lead>
-          Pick a nickname the team will recognise. No account, no sign-up, and nothing to confirm.
-        </Lead>
-        <JoinRoomForm action={joinRoom} />
-        <ParticipantList participants={state.room.participants} selfId={null} />
+      <Screen width="wide">
+        <div className={styles.aside}>
+          <Heading>Join the Room</Heading>
+          <Lead>
+            Pick a nickname the team will recognise. No account, no sign-up, and nothing to confirm.
+          </Lead>
+          <JoinRoomForm action={joinRoom} />
+        </div>
+        <RoomTable participants={state.room.participants} selfId={null}>
+          <NoRoundYet />
+        </RoomTable>
       </Screen>
     );
   }
@@ -97,16 +110,17 @@ function Room({ roomId }: { roomId: string }) {
   }
 
   return (
-    <Screen>
-      <Heading>The Room is open</Heading>
-      <Lead>
-        You are in as {state.self.nickname}. Paste this link wherever the team talks — it keeps
-        working for as long as the team keeps using it.
-      </Lead>
-      {nicknameSharedWithSomebodyElse(state.room, state.self) ? (
-        <Note>Somebody else in the Room answers to that nickname too.</Note>
-      ) : null}
-      <ParticipantList participants={state.room.participants} selfId={state.self.id} />
+    <Screen width="wide">
+      <div className={styles.aside}>
+        <Heading>The Room is open</Heading>
+        <Lead>You are in as {state.self.nickname}.</Lead>
+        {nicknameSharedWithSomebodyElse(state.room, state.self) ? (
+          <Note>Somebody else in the Room answers to that nickname too.</Note>
+        ) : null}
+      </div>
+      <RoomTable participants={state.room.participants} selfId={state.self.id}>
+        <NoRoundYet />
+      </RoomTable>
       <div className={styles.share}>
         <Note>Room link</Note>
         <p className={styles.link}>{link}</p>
@@ -115,6 +129,10 @@ function Room({ roomId }: { roomId: string }) {
             {copyOutcome === 'copied' ? 'Copied' : 'Copy link'}
           </Button>
         </div>
+        <Note>
+          Paste it wherever the team talks — it keeps working for as long as the team keeps using
+          it.
+        </Note>
         {copyOutcome === 'blocked' ? (
           <Note>The browser blocked copying — select the link above and copy it by hand.</Note>
         ) : null}

@@ -5,7 +5,9 @@
   --bg-recessed: #171717;
   --surface-elevated: #2f2f2f;
   --surface-elevated-hover: #3f3f3f;
+  --surface-prominent: #3f3f3f;
   --border-subtle: #383838;
+  --border-prominent: #8e8e8e;
   --border-focus: #8e8e8e;
 
   --text-primary: #ececec;
@@ -40,9 +42,31 @@
   --border-width: 1px;
   --border-width-focus: 2px;
 
-  --duration-fast: 120ms;
+  --duration-feedback: 120ms;
+  --duration-departure: 200ms;
+  --duration-settle: 280ms;
+  --duration-arrival: 440ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-entrance: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
 
   --opacity-disabled: 0.5;
 
   --measure: 34rem;
+  --measure-wide: 52rem;
+
+  --seat-width: 6rem;
+  --seat-height: 8rem;
+  --estimate-width: 2rem;
+  --estimate-height: 2.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-feedback: 0ms;
+    --duration-departure: 0ms;
+    --duration-settle: 0ms;
+    --duration-arrival: 0ms;
+  }
 }

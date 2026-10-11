@@ -1,8 +1,18 @@
 import type { ReactNode } from 'react';
 import styles from './Screen.module.css';
 
-export function Screen({ children }: { children: ReactNode }) {
-  return <main className={styles.screen}>{children}</main>;
+export function Screen({
+  width = 'measure',
+  children,
+}: {
+  width?: 'measure' | 'wide';
+  children: ReactNode;
+}) {
+  return (
+    <main className={styles.screen} data-width={width}>
+      {children}
+    </main>
+  );
 }
 
 export function Heading({ children }: { children: ReactNode }) {

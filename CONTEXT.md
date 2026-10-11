@@ -5,7 +5,7 @@ A team estimates tasks in Fibonacci points together. Anyone can open a space, sh
 ## Language
 
 **Room**:
-The persistent space behind a shareable link. It outlives any single vote and stays valid for as long as the team keeps using it.
+The persistent space behind a shareable link. It outlives any single vote and stays valid for as long as the team keeps using it. The table the Participants sit around is furniture drawn inside a Room, never another name for the Room itself.
 _Avoid_: session, board, game, table
 
 **Round**:
