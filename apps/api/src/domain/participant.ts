@@ -7,6 +7,7 @@ export type Participant = {
   nickname: string;
   tokenHash: string;
   joinedAt: Date;
+  lastSeenAt: Date;
 };
 
 export function issueToken(): string {

@@ -4,6 +4,8 @@ import { hashedToken } from './participant.js';
 
 export const INITIAL_REVISION = 1;
 
+export const ACTIVITY_WINDOW_MS = 120_000;
+
 export type Room = {
   id: string;
   revision: number;
@@ -12,6 +14,26 @@ export type Room = {
 
 function byArrival(one: Participant, other: Participant): number {
   return one.joinedAt.getTime() - other.joinedAt.getTime() || one.id.localeCompare(other.id);
+}
+
+export function seenAt(room: Room, self: Participant, at: Date): Room {
+  return {
+    ...room,
+    participants: room.participants.map((participant) =>
+      participant.id === self.id ? { ...participant, lastSeenAt: at } : participant,
+    ),
+  };
+}
+
+export function presentAt(room: Room, now: Date): Room {
+  const windowOpened = now.getTime() - ACTIVITY_WINDOW_MS;
+
+  return {
+    ...room,
+    participants: room.participants.filter(
+      ({ lastSeenAt }) => lastSeenAt.getTime() >= windowOpened,
+    ),
+  };
 }
 
 export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {

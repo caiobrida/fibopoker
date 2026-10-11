@@ -1,10 +1,14 @@
 import type { RoomSnapshot } from '@fibopoker/shared';
-import { participantHolding, snapshotOf } from './room.js';
+import type { Clock } from './clock.js';
+import { participantHolding, presentAt, seenAt, snapshotOf } from './room.js';
 import { RoomNotFoundError, UnknownParticipantError } from './room-errors.js';
 import type { RoomRepository } from './room-repository.js';
 
 export class GetRoomSnapshot {
-  constructor(private readonly rooms: RoomRepository) {}
+  constructor(
+    private readonly rooms: RoomRepository,
+    private readonly clock: Clock,
+  ) {}
 
   async execute({
     roomId,
@@ -19,8 +23,10 @@ export class GetRoomSnapshot {
       throw new RoomNotFoundError(roomId);
     }
 
+    const now = this.clock.now();
+
     if (token === null) {
-      return snapshotOf(room, null);
+      return snapshotOf(presentAt(room, now), null);
     }
 
     const self = participantHolding(room, token);
@@ -29,6 +35,8 @@ export class GetRoomSnapshot {
       throw new UnknownParticipantError();
     }
 
-    return snapshotOf(room, self);
+    await this.rooms.markSeen(room.id, self.id, now);
+
+    return snapshotOf(presentAt(seenAt(room, self, now), now), self);
   }
 }
