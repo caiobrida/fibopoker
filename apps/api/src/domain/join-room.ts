@@ -25,12 +25,14 @@ export class JoinRoom {
     }
 
     const token = issueToken();
+    const now = this.clock.now();
 
     await this.rooms.addParticipant(room.id, {
       id: nanoid(PARTICIPANT_ID_LENGTH),
       nickname,
       tokenHash: hashedToken(token),
-      joinedAt: this.clock.now(),
+      joinedAt: now,
+      lastSeenAt: now,
     });
 
     return { token };

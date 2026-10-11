@@ -27,6 +27,21 @@ export class InMemoryRoomRepository implements RoomRepository {
     }));
   }
 
+  async markSeen(roomId: string, participantId: string, at: Date): Promise<void> {
+    const room = this.rooms.get(roomId);
+
+    if (room === undefined) {
+      throw new RoomNotFoundError(roomId);
+    }
+
+    this.rooms.set(roomId, {
+      ...room,
+      participants: room.participants.map((participant) =>
+        participant.id === participantId ? { ...participant, lastSeenAt: at } : participant,
+      ),
+    });
+  }
+
   private bumpingRevision(roomId: string, write: (room: Room) => Room): void {
     const room = this.rooms.get(roomId);
 

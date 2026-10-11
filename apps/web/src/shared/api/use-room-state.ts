@@ -1,5 +1,7 @@
 import type { Participant, RoomSnapshot } from '@fibopoker/shared';
 import { useQuery } from '@tanstack/react-query';
+import { useState, useSyncExternalStore } from 'react';
+import { Cadence } from './cadence.ts';
 import { fetchRoomSnapshot, StaleIdentityError } from './client.ts';
 import { forgetToken, storedToken } from './participant-token.ts';
 
@@ -34,14 +36,40 @@ function selfIn(room: RoomSnapshot): Participant | undefined {
   return room.participants.find(({ id }) => id === room.selfId);
 }
 
+function whileTabVisibilityChanges(react: () => void): () => void {
+  document.addEventListener('visibilitychange', react);
+
+  return () => document.removeEventListener('visibilitychange', react);
+}
+
+function useTabHidden(): boolean {
+  return useSyncExternalStore(
+    whileTabVisibilityChanges,
+    () => document.hidden,
+    () => false,
+  );
+}
+
 export function roomQueryKey(roomId: string): unknown[] {
   return ['room', roomId];
 }
 
 export function useRoomState(roomId: string): RoomState {
+  const tabHidden = useTabHidden();
+  const [cadence] = useState(() => new Cadence());
+
   const query = useQuery({
     queryKey: roomQueryKey(roomId),
-    queryFn: () => readRoom(roomId),
+    queryFn: async () => {
+      const room = await readRoom(roomId);
+
+      cadence.noticed(room === null ? null : room.revision);
+
+      return room;
+    },
+    refetchInterval: () => cadence.interval(tabHidden),
+    refetchIntervalInBackground: true,
+    structuralSharing: true,
     retry: false,
   });
 

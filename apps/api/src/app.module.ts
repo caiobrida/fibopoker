@@ -32,8 +32,8 @@ import { SystemClock } from './infra/system-clock.js';
     },
     {
       provide: GetRoomSnapshot,
-      useFactory: (rooms: RoomRepository) => new GetRoomSnapshot(rooms),
-      inject: [ROOM_REPOSITORY],
+      useFactory: (rooms: RoomRepository, clock: Clock) => new GetRoomSnapshot(rooms, clock),
+      inject: [ROOM_REPOSITORY, CLOCK],
     },
   ],
 })

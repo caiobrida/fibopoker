@@ -24,11 +24,12 @@ export class PrismaRoomRepository implements RoomRepository {
       id: room.id,
       revision: room.revision,
       participants: room.participants.map(
-        ({ id: participantId, nickname, tokenHash, joinedAt }) => ({
+        ({ id: participantId, nickname, tokenHash, joinedAt, lastSeenAt }) => ({
           id: participantId,
           nickname,
           tokenHash,
           joinedAt,
+          lastSeenAt,
         }),
       ),
     };
@@ -38,6 +39,13 @@ export class PrismaRoomRepository implements RoomRepository {
     return this.bumpingRevision(roomId, (transaction) =>
       transaction.participant.create({ data: { ...participant, roomId } }),
     );
+  }
+
+  async markSeen(roomId: string, participantId: string, at: Date): Promise<void> {
+    await this.prisma.participant.update({
+      where: { id: participantId, roomId },
+      data: { lastSeenAt: at },
+    });
   }
 
   private async bumpingRevision(
