@@ -53,7 +53,7 @@ describe('Presenting a Participant token', () => {
 
     const snapshot = await new GetRoomSnapshot(rooms).execute({ roomId: created.id, token: null });
 
-    expect(snapshot.viewerId).toBeNull();
+    expect(snapshot.selfId).toBeNull();
     expect(snapshot.participants.map(({ nickname }) => nickname)).toEqual(['Alice']);
     expect(snapshot.revision).toBeGreaterThan(0);
   });

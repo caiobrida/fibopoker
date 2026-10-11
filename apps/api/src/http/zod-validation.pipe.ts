@@ -1,10 +1,14 @@
 import type { ApiError } from '@fibopoker/shared';
 import { BadRequestException, type PipeTransform } from '@nestjs/common';
-import type { ZodType } from 'zod';
+import type { ZodError, ZodType } from 'zod';
 
-function readable(error: { issues: { path: PropertyKey[]; message: string }[] }): string {
+const MALFORMED_BODY = 'The request body is not the shape this endpoint accepts.';
+
+function readable(error: ZodError): string {
   return error.issues
-    .map(({ path, message }) => (path.length === 0 ? message : `${path.join('.')}: ${message}`))
+    .map(({ path, message }) =>
+      path.length === 0 ? MALFORMED_BODY : `${path.join('.')}: ${message}`,
+    )
     .join(' ');
 }
 

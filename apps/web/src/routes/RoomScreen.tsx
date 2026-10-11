@@ -1,3 +1,4 @@
+import type { Participant, RoomSnapshot } from '@fibopoker/shared';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useJoinRoom, useRoomState } from '../shared/api/index.ts';
@@ -11,6 +12,14 @@ import styles from './RoomScreen.module.css';
 type CopyOutcome = 'untouched' | 'copied' | 'blocked';
 
 const COPY_FEEDBACK_MS = 2000;
+
+function nicknameSharedWithSomebodyElse(room: RoomSnapshot, self: Participant): boolean {
+  return room.participants.some(
+    (participant) =>
+      participant.id !== self.id &&
+      participant.nickname.toLowerCase() === self.nickname.toLowerCase(),
+  );
+}
 
 export function RoomScreen() {
   const { roomId } = useParams();
@@ -71,7 +80,7 @@ function Room({ roomId }: { roomId: string }) {
           Pick a nickname the team will recognise. No account, no sign-up, and nothing to confirm.
         </Lead>
         <JoinRoomForm action={joinRoom} />
-        <ParticipantList participants={state.room.participants} viewerId={null} />
+        <ParticipantList participants={state.room.participants} selfId={null} />
       </Screen>
     );
   }
@@ -91,13 +100,13 @@ function Room({ roomId }: { roomId: string }) {
     <Screen>
       <Heading>The Room is open</Heading>
       <Lead>
-        You are in as {state.viewer.nickname}. Paste this link wherever the team talks — it keeps
+        You are in as {state.self.nickname}. Paste this link wherever the team talks — it keeps
         working for as long as the team keeps using it.
       </Lead>
-      {joinRoom.nicknameAlreadyInUse ? (
-        <Note>Somebody else in the Room already answers to that nickname.</Note>
+      {nicknameSharedWithSomebodyElse(state.room, state.self) ? (
+        <Note>Somebody else in the Room answers to that nickname too.</Note>
       ) : null}
-      <ParticipantList participants={state.room.participants} viewerId={state.viewer.id} />
+      <ParticipantList participants={state.room.participants} selfId={state.self.id} />
       <div className={styles.share}>
         <Note>Room link</Note>
         <p className={styles.link}>{link}</p>

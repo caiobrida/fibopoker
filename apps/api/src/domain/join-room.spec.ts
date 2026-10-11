@@ -36,11 +36,11 @@ describe('Joining a Room', () => {
     const first = await getRoomSnapshot.execute({ roomId: created.id, token });
     const second = await getRoomSnapshot.execute({ roomId: created.id, token });
 
-    expect(second.viewerId).toBe(first.viewerId);
-    expect(second.participants).toEqual([{ id: first.viewerId, nickname: 'Alice' }]);
+    expect(second.selfId).toBe(first.selfId);
+    expect(second.participants).toEqual([{ id: first.selfId, nickname: 'Alice' }]);
   });
 
-  it('warns that a nickname is already in use without refusing the Participant', async () => {
+  it('takes in a Participant whose nickname is already spoken for', async () => {
     const rooms = new InMemoryRoomRepository();
     const created = await new CreateRoom(rooms).execute();
     const joinRoom = new JoinRoom(rooms, new ManualClock(A_MONDAY_MORNING));
@@ -48,26 +48,14 @@ describe('Joining a Room', () => {
 
     const second = await joinRoom.execute({ roomId: created.id, nickname: 'alice' });
 
-    expect(second.nicknameAlreadyInUse).toBe(true);
-
     const snapshot = await new GetRoomSnapshot(rooms).execute({
       roomId: created.id,
       token: second.token,
     });
 
+    expect(snapshot.participants.map(({ nickname }) => nickname)).toContain('alice');
     expect(snapshot.participants).toHaveLength(2);
-    expect(snapshot.viewerId).not.toBeNull();
-  });
-
-  it('leaves a nickname nobody else answers to unremarked', async () => {
-    const rooms = new InMemoryRoomRepository();
-    const created = await new CreateRoom(rooms).execute();
-    const joinRoom = new JoinRoom(rooms, new ManualClock(A_MONDAY_MORNING));
-    await joinRoom.execute({ roomId: created.id, nickname: 'Alice' });
-
-    const second = await joinRoom.execute({ roomId: created.id, nickname: 'Bob' });
-
-    expect(second.nicknameAlreadyInUse).toBe(false);
+    expect(snapshot.selfId).not.toBeNull();
   });
 
   it('advances the Room revision, because nothing writes without bumping it', async () => {

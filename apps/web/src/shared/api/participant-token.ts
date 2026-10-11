@@ -4,26 +4,22 @@ function keyFor(roomId: string): string {
   return `${KEY_PREFIX}${roomId}`;
 }
 
-export function storedToken(roomId: string): string | null {
+function attempt<T>(access: () => T): T | null {
   try {
-    return window.localStorage.getItem(keyFor(roomId));
+    return access();
   } catch {
     return null;
   }
 }
 
+export function storedToken(roomId: string): string | null {
+  return attempt(() => window.localStorage.getItem(keyFor(roomId))) ?? null;
+}
+
 export function rememberToken(roomId: string, token: string): void {
-  try {
-    window.localStorage.setItem(keyFor(roomId), token);
-  } catch {
-    return;
-  }
+  attempt(() => window.localStorage.setItem(keyFor(roomId), token));
 }
 
 export function forgetToken(roomId: string): void {
-  try {
-    window.localStorage.removeItem(keyFor(roomId));
-  } catch {
-    return;
-  }
+  attempt(() => window.localStorage.removeItem(keyFor(roomId)));
 }

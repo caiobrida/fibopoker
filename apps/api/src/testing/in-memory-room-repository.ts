@@ -21,16 +21,19 @@ export class InMemoryRoomRepository implements RoomRepository {
   }
 
   async addParticipant(roomId: string, participant: Participant): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      participants: [...room.participants, { ...participant }],
+    }));
+  }
+
+  private bumpingRevision(roomId: string, write: (room: Room) => Room): void {
     const room = this.rooms.get(roomId);
 
     if (room === undefined) {
       throw new RoomNotFoundError(roomId);
     }
 
-    this.rooms.set(roomId, {
-      ...room,
-      revision: room.revision + 1,
-      participants: [...room.participants, { ...participant }],
-    });
+    this.rooms.set(roomId, { ...write(room), revision: room.revision + 1 });
   }
 }

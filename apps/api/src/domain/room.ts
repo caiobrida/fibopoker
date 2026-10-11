@@ -14,14 +14,14 @@ function byArrival(one: Participant, other: Participant): number {
   return one.joinedAt.getTime() - other.joinedAt.getTime() || one.id.localeCompare(other.id);
 }
 
-export function snapshotOf(room: Room, viewer: Participant | null): RoomSnapshot {
+export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
   return {
     id: room.id,
     revision: room.revision,
     participants: [...room.participants]
       .sort(byArrival)
       .map(({ id, nickname }) => ({ id, nickname })),
-    viewerId: viewer === null ? null : viewer.id,
+    selfId: self === null ? null : self.id,
   };
 }
 
@@ -29,10 +29,4 @@ export function participantHolding(room: Room, token: string): Participant | nul
   const presented = hashedToken(token);
 
   return room.participants.find(({ tokenHash }) => tokenHash === presented) ?? null;
-}
-
-export function isNicknameInUse(room: Room, nickname: string): boolean {
-  return room.participants.some(
-    (participant) => participant.nickname.toLowerCase() === nickname.toLowerCase(),
-  );
 }

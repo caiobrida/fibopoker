@@ -6,7 +6,7 @@ import { forgetToken, storedToken } from './participant-token.ts';
 export type RoomState =
   | { status: 'resolving' }
   | { status: 'unidentified'; room: RoomSnapshot }
-  | { status: 'present'; room: RoomSnapshot; viewer: Participant }
+  | { status: 'present'; room: RoomSnapshot; self: Participant }
   | { status: 'absent' }
   | { status: 'unreachable'; reason: string };
 
@@ -30,8 +30,8 @@ async function readRoom(roomId: string): Promise<RoomSnapshot | null> {
   }
 }
 
-function viewerOf(room: RoomSnapshot): Participant | undefined {
-  return room.participants.find(({ id }) => id === room.viewerId);
+function selfIn(room: RoomSnapshot): Participant | undefined {
+  return room.participants.find(({ id }) => id === room.selfId);
 }
 
 export function roomQueryKey(roomId: string): unknown[] {
@@ -50,11 +50,11 @@ export function useRoomState(roomId: string): RoomState {
   }
 
   if (query.data !== undefined) {
-    const viewer = viewerOf(query.data);
+    const self = selfIn(query.data);
 
-    return viewer === undefined
+    return self === undefined
       ? { status: 'unidentified', room: query.data }
-      : { status: 'present', room: query.data, viewer };
+      : { status: 'present', room: query.data, self };
   }
 
   return query.error === null

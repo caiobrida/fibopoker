@@ -35,12 +35,12 @@ export class PrismaRoomRepository implements RoomRepository {
   }
 
   addParticipant(roomId: string, participant: Participant): Promise<void> {
-    return this.mutating(roomId, (transaction) =>
+    return this.bumpingRevision(roomId, (transaction) =>
       transaction.participant.create({ data: { ...participant, roomId } }),
     );
   }
 
-  private async mutating(
+  private async bumpingRevision(
     roomId: string,
     write: (transaction: Prisma.TransactionClient) => Promise<unknown>,
   ): Promise<void> {

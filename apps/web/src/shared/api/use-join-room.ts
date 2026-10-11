@@ -6,7 +6,6 @@ import { roomQueryKey } from './use-room-state.ts';
 export type JoinRoomAction = {
   join: (nickname: string) => void;
   isJoining: boolean;
-  nicknameAlreadyInUse: boolean;
   failure: string | null;
 };
 
@@ -24,7 +23,6 @@ export function useJoinRoom(roomId: string): JoinRoomAction {
   return {
     join: (nickname: string) => mutation.mutate(nickname),
     isJoining: mutation.isPending,
-    nicknameAlreadyInUse: mutation.data?.nicknameAlreadyInUse ?? false,
     failure: mutation.error === null ? null : mutation.error.message,
   };
 }

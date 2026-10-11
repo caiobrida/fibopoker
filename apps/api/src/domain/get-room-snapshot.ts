@@ -23,12 +23,12 @@ export class GetRoomSnapshot {
       return snapshotOf(room, null);
     }
 
-    const viewer = participantHolding(room, token);
+    const self = participantHolding(room, token);
 
-    if (viewer === null) {
+    if (self === null) {
       throw new UnknownParticipantError();
     }
 
-    return snapshotOf(room, viewer);
+    return snapshotOf(room, self);
   }
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { nanoIdSchema } from './nano-id.js';
 
 export const PARTICIPANT_ID_LENGTH = 12;
 
@@ -6,18 +7,12 @@ export const PARTICIPANT_TOKEN_LENGTH = 32;
 
 export const NICKNAME_MAX_LENGTH = 24;
 
-export const participantIdSchema = z
-  .string()
-  .length(PARTICIPANT_ID_LENGTH)
-  .regex(/^[A-Za-z0-9_-]+$/);
+export const participantIdSchema = nanoIdSchema(PARTICIPANT_ID_LENGTH);
 
-export const participantTokenSchema = z
-  .string()
-  .length(PARTICIPANT_TOKEN_LENGTH)
-  .regex(/^[A-Za-z0-9_-]+$/);
+export const participantTokenSchema = nanoIdSchema(PARTICIPANT_TOKEN_LENGTH);
 
 export const nicknameSchema = z
-  .string()
+  .string({ error: 'A nickname is required.' })
   .trim()
   .min(1, 'A nickname cannot be empty.')
   .max(NICKNAME_MAX_LENGTH, `A nickname is at most ${NICKNAME_MAX_LENGTH} characters.`);
@@ -33,7 +28,6 @@ export const joinRoomRequestSchema = z.object({
 
 export const joinRoomResponseSchema = z.object({
   token: participantTokenSchema,
-  nicknameAlreadyInUse: z.boolean(),
 });
 
 export type Participant = z.infer<typeof participantSchema>;

@@ -12,10 +12,10 @@ function presence(count: number): string {
 
 export function ParticipantList({
   participants,
-  viewerId,
+  selfId,
 }: {
   participants: Participant[];
-  viewerId: string | null;
+  selfId: string | null;
 }) {
   return (
     <section className={styles.presence}>
@@ -24,7 +24,7 @@ export function ParticipantList({
         {participants.map(({ id, nickname }) => (
           <li key={id} className={styles.row}>
             <span>{nickname}</span>
-            {id === viewerId ? <span className={styles.viewer}>you</span> : null}
+            {id === selfId ? <span className={styles.self}>you</span> : null}
           </li>
         ))}
       </ul>
