@@ -10,7 +10,7 @@ const proportions: CSSProperties & Record<'--table-aspect', number> = {
   '--table-aspect': TABLE_ASPECT,
 };
 
-function presence(count: number): string {
+function howManyAreHere(count: number): string {
   if (count === 0) {
     return 'Nobody is in the Room yet';
   }
@@ -41,7 +41,7 @@ export function RoomTable({
           </ul>
         </div>
       </div>
-      <Note>{presence(participants.length)}</Note>
+      <Note>{howManyAreHere(participants.length)}</Note>
     </section>
   );
 }

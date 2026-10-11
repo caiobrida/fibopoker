@@ -41,6 +41,7 @@
 .seats {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   margin: 0;
   padding: 0;
   list-style: none;

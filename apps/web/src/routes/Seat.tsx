@@ -19,7 +19,9 @@ export function Seat({ seat }: { seat: SeatedParticipant }) {
     >
       <span className={styles.estimate} />
       <span className={styles.occupant}>
-        <span className={styles.nickname}>{seat.nickname}</span>
+        <span className={styles.nickname} title={seat.nickname}>
+          {seat.nickname}
+        </span>
         {seat.mine ? <span className={styles.you}>you</span> : null}
       </span>
     </li>

@@ -5,6 +5,7 @@
   --bg-recessed: #171717;
   --surface-elevated: #2f2f2f;
   --surface-elevated-hover: #3f3f3f;
+  --surface-prominent: #3f3f3f;
   --border-subtle: #383838;
   --border-prominent: #8e8e8e;
   --border-focus: #8e8e8e;
@@ -56,7 +57,7 @@
   --measure-wide: 52rem;
 
   --seat-width: 6rem;
-  --seat-height: 7.75rem;
+  --seat-height: 8rem;
   --estimate-width: 2rem;
   --estimate-height: 2.75rem;
 }

@@ -1,5 +1,6 @@
 .seat {
   position: absolute;
+  pointer-events: auto;
   top: 0;
   left: 0;
   display: flex;
@@ -28,7 +29,7 @@
 }
 
 .seat[data-occupant='you'] {
-  background-color: var(--surface-elevated-hover);
+  background-color: var(--surface-prominent);
   border-color: var(--border-prominent);
 }
 
@@ -47,6 +48,11 @@
 }
 
 .nickname {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
   overflow-wrap: anywhere;
   font-size: var(--text-sm);
   line-height: var(--leading-tight);

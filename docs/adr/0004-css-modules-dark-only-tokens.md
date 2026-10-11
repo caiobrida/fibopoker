@@ -20,6 +20,7 @@ Since ticket 02 the one place they live is `apps/web/src/shared/ui/tokens.css`, 
 | `--bg-recessed`                  | `#171717` | wells, sidebars                                    |
 | `--surface-elevated`             | `#2f2f2f` | inputs, cards, the secondary action                |
 | `--surface-elevated-hover`       | `#3f3f3f` | the secondary action under the pointer             |
+| `--surface-prominent`            | `#3f3f3f` | your own seat                                      |
 | `--border-subtle`                | `#383838` | dividers                                           |
 | `--border-prominent`             | `#8e8e8e` | your own seat, and anything else found at a glance |
 | `--border-focus`                 | `#8e8e8e` | the focus ring                                     |
