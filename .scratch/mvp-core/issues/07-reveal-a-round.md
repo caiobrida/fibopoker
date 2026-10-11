@@ -17,3 +17,4 @@ Nothing reveals on its own, and nobody has a special right to do it — a sessio
 - [ ] Identical values are grouped rather than listed one per Participant
 - [ ] The highest and lowest Estimates are visually distinguished
 - [ ] No average or median appears anywhere on the screen
+- [ ] The Reveal reads as one moment across the table; ticket 15 refines the choreography but the integrity rule above is settled here
