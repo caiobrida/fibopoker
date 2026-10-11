@@ -1,0 +1,47 @@
+.room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.clearance {
+  width: 100%;
+  padding: calc(var(--seat-height) / 2) calc(var(--seat-width) / 2);
+}
+
+.table {
+  position: relative;
+  container-type: size;
+  width: 100%;
+  aspect-ratio: var(--table-aspect);
+}
+
+.table::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--seat-height) / 2) calc(var(--seat-width) / 2);
+  background-color: var(--bg-recessed);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: 50%;
+}
+
+.middle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: center;
+  padding: 0 25%;
+  text-align: center;
+}
+
+.seats {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

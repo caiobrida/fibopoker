@@ -12,17 +12,17 @@ This lands before ticket 08 on purpose. The Deck, the voted state and the Reveal
 
 **Status:** ready-for-agent
 
-- [ ] Participants are seated around a table rather than listed in a column
-- [ ] The seating stays balanced at any count the Room realistically holds, from one person to a dozen
-- [ ] Somebody arriving takes a seat with motion that draws the eye to them
-- [ ] Somebody dropping out of the activity window vacates their seat, and the remaining seats rebalance by moving rather than by snapping
-- [ ] Your own seat is identifiable at a glance without reading the names
-- [ ] Each seat has a place for the Estimate that ticket 08 will put there, so nothing has to be re-homed
-- [ ] The middle of the table carries the Round's state, and says what it is waiting for while no Round exists
-- [ ] The table is visible to somebody who has not joined yet, so the nickname form is answered next to a Room that is visibly filling up
-- [ ] Duration and easing tokens live in `tokens.css` alongside the rest, and no component introduces a literal one
-- [ ] Every animation is suppressed under `prefers-reduced-motion`, and the screen is still fully legible with it on
-- [ ] Nothing animates on every poll — an unchanged Room is a still screen
+- [x] Participants are seated around a table rather than listed in a column
+- [x] The seating stays balanced at any count the Room realistically holds, from one person to a dozen
+- [x] Somebody arriving takes a seat with motion that draws the eye to them
+- [x] Somebody dropping out of the activity window vacates their seat, and the remaining seats rebalance by moving rather than by snapping
+- [x] Your own seat is identifiable at a glance without reading the names
+- [x] Each seat has a place for the Estimate that ticket 08 will put there, so nothing has to be re-homed
+- [x] The middle of the table carries the Round's state, and says what it is waiting for while no Round exists
+- [x] The table is visible to somebody who has not joined yet, so the nickname form is answered next to a Room that is visibly filling up
+- [x] Duration and easing tokens live in `tokens.css` alongside the rest, and no component introduces a literal one
+- [x] Every animation is suppressed under `prefers-reduced-motion`, and the screen is still fully legible with it on
+- [x] Nothing animates on every poll — an unchanged Room is a still screen
 
 ## Notes
 
@@ -33,3 +33,27 @@ Where this ticket says a motion should "draw the eye", taste decides — the cri
 Seating geometry is the one genuinely open question. An even distribution around an ellipse reads best at larger counts; two people facing each other across the table reads best at two. Whether that is one layout that degrades well or two layouts with a threshold between them is worth deciding at the keyboard, against both cases, rather than guessing here.
 
 ADR 0004 governs: no literal colours, spacings, radii or durations in components. If the table needs values the token layer cannot express, that is a reason to extend the token layer, not to bypass it.
+
+## Comments
+
+**The seating question went the simple way: one layout, no threshold.** The ticket left open whether an even ellipse and a two-people-facing-each-other case were one layout or two. They are one. Seats are spaced evenly **by arc length** rather than by angle, starting at top centre — and arc-length spacing on an ellipse puts two people at top and bottom, which is facing each other across the table. Three gives a top and two at the near corners, four gives the cardinal points, twelve gives an even ring. Angle-even spacing would not have done this: on a 1.5 ellipse it bunches seats at the left and right ends, which is exactly where the seats are tallest and the room is tightest. `seatsAround` walks the perimeter once and drops an occupant every `perimeter / count`, which is a dozen lines and removes the threshold the ticket was braced for.
+
+**The table's size was solved rather than eyeballed, because twelve is genuinely tight.** The first pass looked right at four and overlapped at twelve — on the flanks, where consecutive seats are stacked almost vertically and a seat is taller than it is wide. The binding constraint is the vertical gap at the ends of the ellipse, and seat _width_ barely enters into it. Searching the geometry gave a 44rem table at aspect 1.5 with 6 × 7.75rem seats, which clears twelve by 0.75rem; measured in the browser at 12px. One consequence worth knowing: making the table _wider_ helps far less than making it _rounder_, so a future squeeze should spend its budget on the aspect.
+
+**Reduced motion is implemented by zeroing the duration tokens, which makes it unforgettable.** The media query redefines `--duration-*` to `0ms` on `:root` and nothing else in the app mentions the preference. It is airtight only because ADR 0004 already forbids a component from writing a literal duration — a duration a component cannot spell is one it cannot smuggle past the preference. ADR 0009 records this along with the two obligations it creates: keyframes must end at the resting state, and JavaScript that needs a duration reads the token through `motionDuration()`.
+
+**A hidden tab freezes animations, so the vacated seat is cleaned up by a timer.** This was found the hard way and is the one genuinely surprising thing in the ticket. With the tab not rendering, Chrome freezes CSS animations at `currentTime: 0`, never fires `animationend`, and never resolves `Animation.finished` — all three measured here, not assumed. The first implementation released a vacated seat on `onAnimationEnd` and therefore leaked an invisible, `aria-hidden` seat every time somebody dropped out of a backgrounded Room, which ADR 0008 guarantees will happen: a tab behind an editor keeps polling at 30s and keeps learning that people fell outside the activity window, with no frame ever drawn. A `setTimeout` reading `--duration-departure` is throttled in that tab but does fire. ADR 0009 generalises the rule: nothing may depend on an animation event for correctness.
+
+**Durations are named for moments, not magnitudes**, so `--duration-fast` became `--duration-feedback` and joined `--duration-departure`, `--duration-settle` and `--duration-arrival`. Tickets 08, 09 and 15 are supposed to reach for a named curve; a magnitude name would make them guess. `Button`'s literal `ease` became `--ease-standard` in the same pass, which was the only easing literal in the codebase.
+
+**`ParticipantList` is gone** and `CONTEXT.md` gained a sentence. The domain language lists "table" among the words to avoid _for a Room_, which this ticket's own title appears to break. It does not: the table is furniture drawn inside a Room, not another word for it. The component is `RoomTable` so that it can never be read as the Room, and the glossary now says so rather than leaving the next reader to resolve the clash.
+
+**Each seat already has the Estimate's place in it** — a quiet dashed slot sized by `--estimate-width` / `--estimate-height`, sitting above the nickname and reserving its space now so ticket 08 fills a hole rather than re-homing anything.
+
+## Left for ticket 14
+
+**Phone width is not solved, by design.** The table needs about 44rem to seat a dozen; at 420px it is 292px wide and seats overlap from five people up. Small counts are fine. The fix is not a smaller seat — the geometry search above shows width is not the binding constraint — so it is probably a different arrangement below some breakpoint, which is exactly the call ticket 14 exists to make. Nothing here is in its way: the ring is computed from one aspect constant and the seat metrics are four tokens.
+
+## How it was verified
+
+The web app has no test runner and ADR 0006 puts the only test seam at the API use cases, which this ticket does not touch — so this was verified by driving the real components in Chrome. The seating geometry, arrival, rebalance, departure and the reduced-motion case were exercised against a temporary harness feeding `RoomTable` a scripted roster, and the whole screen was then driven through the real `RoomScreen` and the real polling path against a stub API: join, the table filling up, your own seat, the share block. Measured rather than eyeballed: twelve seats clear by 12px with no clipped nicknames; an identical roster creates no new animations and no transitions, and leaves every existing animation object untouched; under zero-duration tokens arriving seats land at full opacity and scale, and departing seats are released immediately.

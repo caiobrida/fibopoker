@@ -14,19 +14,20 @@ The colours this palette is built from. These are starting values matched to the
 
 Since ticket 02 the one place they live is `apps/web/src/shared/ui/tokens.css`, which also holds the spacing, radius, typography and duration scales. Change a value there, and keep the table below in step with the colours.
 
-| Token                            | Value     | Role                                   |
-| -------------------------------- | --------- | -------------------------------------- |
-| `--bg-base`                      | `#212121` | main surface                           |
-| `--bg-recessed`                  | `#171717` | wells, sidebars                        |
-| `--surface-elevated`             | `#2f2f2f` | inputs, cards, the secondary action    |
-| `--surface-elevated-hover`       | `#3f3f3f` | the secondary action under the pointer |
-| `--border-subtle`                | `#383838` | dividers                               |
-| `--border-focus`                 | `#8e8e8e` | the focus ring                         |
-| `--text-primary`                 | `#ececec` | body and headings                      |
-| `--text-secondary`               | `#b4b4b4` | supporting text                        |
-| `--action-primary-surface`       | `#ececec` | the primary action, inverted           |
-| `--action-primary-surface-hover` | `#ffffff` | the primary action under the pointer   |
-| `--action-primary-text`          | `#171717` | text on the primary action             |
+| Token                            | Value     | Role                                               |
+| -------------------------------- | --------- | -------------------------------------------------- |
+| `--bg-base`                      | `#212121` | main surface                                       |
+| `--bg-recessed`                  | `#171717` | wells, sidebars                                    |
+| `--surface-elevated`             | `#2f2f2f` | inputs, cards, the secondary action                |
+| `--surface-elevated-hover`       | `#3f3f3f` | the secondary action under the pointer             |
+| `--border-subtle`                | `#383838` | dividers                                           |
+| `--border-prominent`             | `#8e8e8e` | your own seat, and anything else found at a glance |
+| `--border-focus`                 | `#8e8e8e` | the focus ring                                     |
+| `--text-primary`                 | `#ececec` | body and headings                                  |
+| `--text-secondary`               | `#b4b4b4` | supporting text                                    |
+| `--action-primary-surface`       | `#ececec` | the primary action, inverted                       |
+| `--action-primary-surface-hover` | `#ffffff` | the primary action under the pointer               |
+| `--action-primary-text`          | `#171717` | text on the primary action                         |
 
 The primary action is inverted — a near-white surface with dark text — rather than a brand colour,
 which is why it reuses the text palette's values instead of introducing its own.

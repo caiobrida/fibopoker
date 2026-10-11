@@ -9,7 +9,7 @@
   font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
   cursor: pointer;
-  transition: background-color var(--duration-fast) ease;
+  transition: background-color var(--duration-feedback) var(--ease-standard);
 }
 
 .button:disabled {

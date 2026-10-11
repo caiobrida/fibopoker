@@ -1,0 +1,84 @@
+.seat {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: center;
+  width: var(--seat-width);
+  height: var(--seat-height);
+  padding: var(--space-2);
+  overflow: hidden;
+  background-color: var(--surface-elevated);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  translate: calc(var(--seat-x) * 1cqw - 50%) calc(var(--seat-y) * 1cqh - 50%);
+  transition: translate var(--duration-settle) var(--ease-standard);
+}
+
+.seat[data-state='seated'] {
+  animation: arrive var(--duration-arrival) var(--ease-entrance) both;
+}
+
+.seat[data-state='vacating'] {
+  pointer-events: none;
+  animation: vacate var(--duration-departure) var(--ease-exit) forwards;
+}
+
+.seat[data-occupant='you'] {
+  background-color: var(--surface-elevated-hover);
+  border-color: var(--border-prominent);
+}
+
+.estimate {
+  flex: none;
+  width: var(--estimate-width);
+  height: var(--estimate-height);
+  border: var(--border-width) dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.occupant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.nickname {
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  text-align: center;
+}
+
+.you {
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  color: var(--text-secondary);
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    scale: 0.6;
+    border-color: var(--border-prominent);
+  }
+
+  60% {
+    border-color: var(--border-prominent);
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes vacate {
+  to {
+    opacity: 0;
+    scale: 0.85;
+  }
+}
