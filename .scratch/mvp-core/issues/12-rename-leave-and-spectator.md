@@ -1,4 +1,4 @@
-# 10 — Rename, Leave and Spectator
+# 12 — Rename, Leave and Spectator
 
 **What to build:** The three ways a person adjusts their own presence in a Room.
 
@@ -6,7 +6,7 @@
 
 Leaving is deliberately asymmetric about Estimates, and that asymmetry is the point: the tally must stop counting someone who is gone, while history must not be rewritten because somebody closed a browser.
 
-**Blocked by:** 07 — Reveal a Round
+**Blocked by:** 09 — Reveal a Round
 
 **Status:** ready-for-agent
 

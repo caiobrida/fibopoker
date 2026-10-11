@@ -1,10 +1,10 @@
-# 08 — Final Estimate and the next Round
+# 10 — Final Estimate and the next Round
 
 **What to build:** After the discussion the team records the number they agreed on, then opens the next Round and keeps going. This is what closes the ceremony's loop and turns a Room into a record of what the session actually decided.
 
 The Final Estimate comes out of people talking, so it is typed in — never derived from the Estimates on screen.
 
-**Blocked by:** 07 — Reveal a Round
+**Blocked by:** 09 — Reveal a Round
 
 **Status:** ready-for-agent
 

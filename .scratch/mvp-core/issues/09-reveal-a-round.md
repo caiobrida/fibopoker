@@ -1,10 +1,10 @@
-# 07 — Reveal a Round
+# 09 — Reveal a Round
 
 **What to build:** When the team is ready, any Participant reveals, and every Estimate appears at the same moment. Identical values are grouped together and the highest and lowest are highlighted, because the disagreement is the reason to talk.
 
 Nothing reveals on its own, and nobody has a special right to do it — a session must never stall waiting for one particular person to be at their keyboard.
 
-**Blocked by:** 06 — Open a Round and cast a hidden Estimate
+**Blocked by:** 08 — Open a Round and cast a hidden Estimate
 
 **Status:** ready-for-agent
 

@@ -1,12 +1,12 @@
-# 13 — The Room is a table
+# 06 — The Room is a table
 
 **What to build:** The Room stops being a list of names and becomes a table the team sits around. Participants take seats as they arrive, the seating stays balanced whether two people showed up or ten, and the middle of the table is where the Round will happen.
 
 Ticket 05 made the Room keep itself current; it currently expresses that as a `<ul>` that gets longer. The same facts — who is here, who just arrived, who dropped off — read completely differently as people appearing around a table, and that reading is the product. Somebody opening the link before the meeting starts should see the team assembling.
 
-This lands before ticket 06 on purpose. The Deck, the voted state and the Reveal all need somewhere to live, and that somewhere is a seat. Building them against a list first would mean re-homing every one of them afterwards.
+This lands before ticket 08 on purpose. The Deck, the voted state and the Reveal all need somewhere to live, and that somewhere is a seat. Building them against a list first would mean re-homing every one of them afterwards.
 
-**It also establishes the motion vocabulary**, because this is the first screen with something worth animating. Durations and easings join the token layer the way colour did in ticket 02, so that tickets 06, 07 and 15 reach for a named curve rather than inventing one — and so that the motion pass later is a sweep rather than a reconciliation.
+**It also establishes the motion vocabulary**, because this is the first screen with something worth animating. Durations and easings join the token layer the way colour did in ticket 02, so that tickets 08, 09 and 15 reach for a named curve rather than inventing one — and so that the motion pass later is a sweep rather than a reconciliation.
 
 **Blocked by:** 05 — Live Room
 
@@ -17,7 +17,7 @@ This lands before ticket 06 on purpose. The Deck, the voted state and the Reveal
 - [ ] Somebody arriving takes a seat with motion that draws the eye to them
 - [ ] Somebody dropping out of the activity window vacates their seat, and the remaining seats rebalance by moving rather than by snapping
 - [ ] Your own seat is identifiable at a glance without reading the names
-- [ ] Each seat has a place for the Estimate that ticket 06 will put there, so nothing has to be re-homed
+- [ ] Each seat has a place for the Estimate that ticket 08 will put there, so nothing has to be re-homed
 - [ ] The middle of the table carries the Round's state, and says what it is waiting for while no Round exists
 - [ ] The table is visible to somebody who has not joined yet, so the nickname form is answered next to a Room that is visibly filling up
 - [ ] Duration and easing tokens live in `tokens.css` alongside the rest, and no component introduces a literal one

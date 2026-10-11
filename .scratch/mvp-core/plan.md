@@ -87,15 +87,15 @@ Two Vercel projects with root directories `apps/web` and `apps/api`. CORS allowl
 
 ## Three tickets added after the fact
 
-Tickets 13, 14 and 15 were written once ticket 05 had shipped and the Room could be looked at. They are the interface work the stages above describe only as "screens", and they do not change the delivery order so much as name a part of it that was left implicit.
+Tickets 06, 07 and 15 were written once ticket 05 had shipped and the Room could be looked at. They are the interface work the stages above describe only as "screens" — a part of this plan that was left implicit rather than a change to it.
 
-**Ticket numbers are identifiers, not an order.** `Blocked by` lines are what sequence this set, and two of the three new tickets land early: 13 before 06, and 14 straight after it. The order the work actually happens in is 05 → 13 → 14 → 06 → 07 → 08 → 09 → 10 → 11 → 12 → 15.
+**The set was renumbered when they landed**, so the numbers still read as the delivery order: what were tickets 06 through 12 are now 08 through 14, and the two new ones that belong early took 06 and 07. A ticket's number is still only an identifier — `Blocked by` is what actually sequences the set — but a number that disagrees with the order is a trap for whoever reads this next, and renumbering was cheaper than the trap.
 
-- **13 — The Room is a table.** The Participant list becomes seats around a table that fill in as people arrive. It goes before ticket 06 because the Deck, the voted state and the Reveal all need a seat to live in, and building them against a list would mean re-homing every one of them. It also establishes the duration and easing tokens, which is why it has to come before anything else that animates.
-- **14 — Design the entry screens.** The create and nickname screens, which shipped functional and plain in tickets 02 and 04.
-- **15 — Motion pass.** The sibling of ticket 12 — the same kind of cross-cutting sweep, for motion rather than layout, landing after it.
+- **06 — The Room is a table.** The Participant list becomes seats around a table that fill in as people arrive. It goes before the Deck because the Deck, the voted state and the Reveal all need a seat to live in, and building them against a list would mean re-homing every one of them. It also establishes the duration and easing tokens, which is why it has to come before anything else that animates.
+- **07 — Design the entry screens.** The create and nickname screens, which shipped functional and plain in tickets 02 and 04.
+- **15 — Motion pass.** The sibling of ticket 14 — the same kind of cross-cutting sweep, for motion rather than layout, landing after it.
 
-Stage 4 above lists `ParticipantRow` among the primitives; ticket 13 is where that becomes a seat at a table instead. Stage 5's "Done" condition is unchanged and still the real one: two browsers, one link, each seeing the other vote and reveal with no manual reload.
+Stage 4 above lists `ParticipantRow` among the primitives; ticket 06 is where that becomes a seat at a table instead. Stage 5's "Done" condition is unchanged and still the real one: two browsers, one link, each seeing the other vote and reveal with no manual reload.
 
 ## Explicitly out of scope
 
