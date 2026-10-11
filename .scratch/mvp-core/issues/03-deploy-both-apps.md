@@ -12,7 +12,7 @@ This lands third, not last, on purpose. Everything after it is then verified on 
 - [x] The CORS allowlist matches preview origins by pattern, not by fixed string, so a preview deployment is not born broken
 - [x] The API uses the pooled database connection at runtime and the direct one for migrations
 - [x] The database client and the API instance are module-scoped singletons, so a warm invocation neither re-bootstraps the framework nor opens a new connection
-- [ ] Creating a Room and reopening its link both work against the deployed URLs
+- [x] Creating a Room and reopening its link both work against the deployed URLs
 - [x] A first request after a long idle period succeeds with no manual step to wake anything
 
 ## Comments
@@ -64,6 +64,14 @@ The production build log shows `Applying migration 20261010195151_create_rooms` 
 
 The web app at `https://fibopoker-web.vercel.app` serves `/` and, through the SPA rewrite, `/r/abc123XY` as well, both `200 text/html`.
 
-### What is still open
+### The deployed browser flow
 
-**Creating a Room and reopening its link against the deployed URLs** is verified against the API but not yet through the deployed web app. `VITE_API_URL` is read at build time, and the published web bundle predates that variable being set — it still carries `http://localhost:3000`. One production deployment of the web project fixes it, after which the browser flow is the last thing to confirm.
+The web project was redeployed once `VITE_API_URL` existed, because Vite reads it at build time and the published bundle predated it — it still carried `http://localhost:3000`. The bundle now in production carries `https://fibopoker-api.vercel.app`.
+
+The flow was then driven against the deployed URLs with the exact requests the app makes, each carrying `Origin: https://fibopoker-web.vercel.app`:
+
+- `POST /rooms` returned `201`, `{"id":"RSa7C7GctkVH","revision":1}` and `Access-Control-Allow-Origin` echoing the web origin.
+- `GET /rooms/RSa7C7GctkVH` returned `200`, the same Room and the same allow-origin header.
+- `https://fibopoker-web.vercel.app/r/RSa7C7GctkVH` returned `200 text/html`, so the shared link survives a cold load through the SPA rewrite.
+
+What was not done is the click-through itself — pressing the button in a real browser and watching React render the Room. The browser could not be driven from the session that did this work, and the UI wiring is what ticket 02 verified locally. Everything the deployment adds underneath it is covered above.
