@@ -24,3 +24,19 @@
 .input::placeholder {
   color: var(--text-secondary);
 }
+
+.field[data-size='large'] {
+  gap: var(--space-4);
+}
+
+.field[data-size='large'] .label {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+}
+
+.field[data-size='large'] .input {
+  padding: var(--space-4);
+  font-size: var(--text-lg);
+}

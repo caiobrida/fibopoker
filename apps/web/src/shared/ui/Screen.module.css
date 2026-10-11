@@ -19,11 +19,21 @@
   font-size: var(--text-display);
   font-weight: var(--weight-medium);
   line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+.heading[data-size='large'] {
+  font-size: var(--text-hero);
 }
 
 .lead {
   margin: 0;
   color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.lead[data-size='large'] {
+  font-size: var(--text-lg);
 }
 
 .note {

@@ -12,6 +12,11 @@
   transition: background-color var(--duration-feedback) var(--ease-standard);
 }
 
+.button[data-size='large'] {
+  padding: var(--space-4) var(--space-8);
+  font-size: var(--text-lg);
+}
+
 .button:disabled {
   cursor: default;
   opacity: var(--opacity-disabled);

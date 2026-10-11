@@ -1,0 +1,10 @@
+.alert {
+  margin: 0;
+  background-color: var(--bg-recessed);
+  border: var(--border-width) solid var(--border-subtle);
+  border-inline-start: var(--border-width-focus) solid var(--border-prominent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
