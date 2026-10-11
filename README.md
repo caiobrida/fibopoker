@@ -68,18 +68,28 @@ From `apps/api`:
 ## Deployment
 
 Two Vercel projects from this one repository, as ADR 0005 decided. Each owns its `vercel.json`,
-so the only thing set in the dashboard is the root directory and the environment.
+so what is left to the dashboard is the root directory, the framework preset and the
+environment.
 
-| Project | Root directory | Environment                                 |
-| ------- | -------------- | ------------------------------------------- |
-| web     | `apps/web`     | `VITE_API_URL`                              |
-| api     | `apps/api`     | `DATABASE_URL`, `DIRECT_URL`, `WEB_ORIGINS` |
+| Project | Root directory | Framework preset | Environment                                 |
+| ------- | -------------- | ---------------- | ------------------------------------------- |
+| web     | `apps/web`     | Vite             | `VITE_API_URL`                              |
+| api     | `apps/api`     | NestJS           | `DATABASE_URL`, `DIRECT_URL`, `WEB_ORIGINS` |
+
+The api preset is not cosmetic. Set to `Other`, Vercel stops looking for a server entrypoint,
+builds the project as a static site and fails on a missing output directory.
 
 `VITE_API_URL` is read when the web app is **built**, not when it runs, so changing it needs a
 redeploy. Left unset, the bundle calls `localhost` and every request fails in the browser.
 
-The API deploys as a single captured Node server: Vercel picks up `apps/api/server.js`, which
-does nothing but load `dist/main.js`. That indirection is load-bearing — see ADR 0005.
+The API deploys as a single Vercel Function built from `apps/api/src/main.ts`, which the
+platform picks and compiles itself. Two things about that entrypoint are load-bearing and are
+explained in ADR 0005: `bootstrap()` is called without `await`, and `emitDecoratorMetadata`
+stays on.
+
+Deployment Protection is off on the api project. The API answers browsers that no one has
+logged in, so protecting it behind Vercel Authentication would make every request from the web
+app fail.
 
 The API's build command applies pending migrations over `DIRECT_URL`, but only on a production
 deployment, and only once the workspace has compiled. Both halves matter: a preview that
