@@ -69,3 +69,39 @@ Checked rather than assumed: the refusal is `nicknameSchema`'s own sentence and 
 Three ways out were considered and all three belong to ticket 14 rather than here. Capping the table narrower on the entry screen fits it on a laptop but makes seats overlap at counts that currently do not overlap, which trades a layout problem for one that looks like a bug. Putting the panel beside the table needs the Room to be wider than `--measure-wide`, which is a decision about the Room, not about the entry screen. Putting the panel in the middle of the table — where ticket 08's Round will go — is the nicest composition of the three and is impossible at phone width, where the ellipse's middle is about 116px across.
 
 The eight-Participant case already overlaps at phone width, which is ticket 06's documented debt and is unchanged by this ticket.
+
+## From the review — not yet acted on
+
+Both axes ran against `main...HEAD`. The standards axis found one hard violation, the spec axis found one real bug; the rest are judgement calls. **None of this is fixed yet** — the commit on this branch is the pre-review state.
+
+### Hard
+
+**"Everyone you send the link to is one click from the table" breaks CONTEXT.md.** On the create screen. The glossary lists `table` among the words to avoid _for a Room_, and in that sentence the table is the destination of the Room link, which is the Room. Every other use in the diff is the furniture (`alreadyAtTheTable`, "already at the table") and is correct. The fix is that one sentence.
+
+**A second join is reachable for `--duration-departure`.** While the panel is `leaving` it is still interactive: the mutation has succeeded so `action.isJoining` is false, `typed` is intact, and focus is still in the field, so a second Enter calls `join` again and adds a duplicate Participant. This is not purely a regression — before this ticket the same window existed and was longer, lasting the whole invalidate-and-refetch round trip rather than 200ms. The fix belongs in `useJoinRoom`: expose the mutation's success as `joined` and include it in the action's `disabled`, which closes both windows and still allows a retry after a failure.
+
+### Real, worth fixing
+
+**The transition still ends in a swap.** `sit` fades and sinks the panel but never collapses it, so when it unmounts a roughly 400px card is replaced by a roughly 120px banner and the table jumps up in one frame. The animated half is the panel; the half criterion 5 is actually about — the Room arriving — is still a cut. Collapsing the panel's height as it leaves (a `1fr → 0fr` grid row on a wrapper, with `overflow: hidden` on the card) turns the big movement into motion and leaves only the banner's own entrance to account for the rest. This was invisible to the verification done here for the reason recorded above: the automated tab never renders.
+
+**`Alert` borrows `--border-width-focus` for its leading edge.** The focus ring's width used as a decorative accent — the same token-for-its-value habit ticket 06's review rejected for `--surface-elevated-hover`. It wants its own width token paired with `--border-prominent`.
+
+**The alerts outside the entry panel are never announced.** `Alert` carries no role, and the panel's polite region is what announces the two inside it. The Room's "somebody else answers to that nickname too" and the share block's "the browser blocked copying" sit outside any live region, so a screen reader is told nothing. `role="status"` on `Alert` itself covers all five uses with one mechanism.
+
+**`useArrival` commits a throwaway `EntryPanel` on reload.** On `resolving → present` the layout effect corrects `arrival` to `seated` before paint, so nothing is visible — but the leaving panel is mounted and unmounted first, autofocus and all. Deriving the state during render instead, with the previous status held in state rather than a ref, removes the commit rather than hiding it.
+
+### Judgement calls
+
+- `@keyframes approach` and `@keyframes arrive` are byte-identical in two modules; the rise-in belongs once in `shared/ui`.
+- `min-height: calc(100dvh - var(--space-8) * 2)` on the hero re-derives `Screen`'s own padding, and drifts silently if that padding changes. `Screen` should expose it as a custom property the child can read.
+- `.consequence` and `.verdict` do not say what they hold, and `listing()` reads as a noun.
+- `export type Arrival` has no importer, and `same()`'s `.trim()` is unreachable because `nicknameSchema` already trimmed both sides.
+- Two of the five `Alert` sites are on the joined Room rather than an entry screen. The duplicate-nickname one is criterion 7 and belongs here; the copy-blocked one is unrequested, and is kept so that this ticket does not leave two spellings of the same role in the same file.
+
+### One claim in these notes is wrong
+
+"Only from five does it become `Ana, Bruno, Carla and 5 others`" — with `NAMES_SPELLED_OUT = 3`, five Participants read "and 2 others". The rule and the code are right, the example is not.
+
+### The laptop fold does not belong to ticket 14
+
+The note above parks it there. That is wrong and should not be relied on: every one of ticket 14's criteria is phone-width, and none of them picks up a composition that clips on a laptop. This ticket also made the case worse than it found it, since the panel is taller than the `aside` it replaced. It needs a decision of its own rather than a ticket that will not look for it.
