@@ -22,7 +22,7 @@ import { SetFinalEstimate } from './set-final-estimate.js';
 const A_MONDAY_MORNING = new Date('2026-10-12T09:00:00.000Z');
 const ONE_SECOND = 1_000;
 
-async function aRoomBeingEstimated(rooms: InMemoryRoomRepository, clock: ManualClock) {
+async function aRoomWithTwoPeopleInIt(rooms: InMemoryRoomRepository, clock: ManualClock) {
   const { id: roomId } = await new CreateRoom(rooms).execute();
   const joinRoom = new JoinRoom(rooms, clock);
   const alice = await joinRoom.execute({ roomId, nickname: 'Alice' });
@@ -35,9 +35,9 @@ async function aRoomBeingEstimated(rooms: InMemoryRoomRepository, clock: ManualC
 async function aRoundThreeApart(
   rooms: InMemoryRoomRepository,
   clock: ManualClock,
-  { title }: { title: string | null } = { title: 'The checkout flow' },
+  title: string | null = 'The checkout flow',
 ) {
-  const { roomId, alice, bob } = await aRoomBeingEstimated(rooms, clock);
+  const { roomId, alice, bob } = await aRoomWithTwoPeopleInIt(rooms, clock);
   const { id: roundId } = await new OpenRound(rooms, clock).execute({
     roomId,
     token: alice,
@@ -82,7 +82,7 @@ describe('Re-voting a revealed Round', () => {
   it('re-votes a Round nobody ever titled, for an unplanned task estimated twice', async () => {
     const rooms = new InMemoryRoomRepository();
     const clock = new ManualClock(A_MONDAY_MORNING);
-    const { roomId, roundId, alice } = await aRoundThreeApart(rooms, clock, { title: null });
+    const { roomId, roundId, alice } = await aRoundThreeApart(rooms, clock, null);
 
     await new ReVote(rooms, clock).execute({ roomId, roundId, token: alice });
 
@@ -172,7 +172,7 @@ describe('Re-voting a revealed Round', () => {
   it('refuses a Round the team is still voting on, discussion being what triggers it', async () => {
     const rooms = new InMemoryRoomRepository();
     const clock = new ManualClock(A_MONDAY_MORNING);
-    const { roomId, alice } = await aRoomBeingEstimated(rooms, clock);
+    const { roomId, alice } = await aRoomWithTwoPeopleInIt(rooms, clock);
     const { id: roundId } = await new OpenRound(rooms, clock).execute({
       roomId,
       token: alice,
@@ -241,7 +241,7 @@ describe('Re-voting a revealed Round', () => {
     const rooms = new InMemoryRoomRepository();
     const clock = new ManualClock(A_MONDAY_MORNING);
     const { roomId, roundId } = await aRoundThreeApart(rooms, clock);
-    const { alice: elsewhere } = await aRoomBeingEstimated(rooms, clock);
+    const { alice: elsewhere } = await aRoomWithTwoPeopleInIt(rooms, clock);
 
     const again = new ReVote(rooms, clock).execute({ roomId, roundId, token: elsewhere });
 

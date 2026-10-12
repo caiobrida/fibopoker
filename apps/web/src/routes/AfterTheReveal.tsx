@@ -33,7 +33,7 @@ export function AfterTheReveal({
         )}
       </section>
       <section className={styles.again}>
-        <Button variant="secondary" onClick={reVoting.again} disabled={reVoting.isReVoting}>
+        <Button variant="secondary" onClick={reVoting.reVote} disabled={reVoting.isReVoting}>
           {reVoting.isReVoting ? 'Re-voting…' : 'Re-vote'}
         </Button>
         <Note>A fresh Round on the same task. This one stays on the record either way.</Note>

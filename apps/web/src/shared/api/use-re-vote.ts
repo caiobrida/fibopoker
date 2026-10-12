@@ -4,7 +4,7 @@ import { storedToken } from './participant-token.ts';
 import { roomQueryKey } from './use-room-state.ts';
 
 export type ReVoteAction = {
-  again: () => void;
+  reVote: () => void;
   isReVoting: boolean;
   failure: string | null;
 };
@@ -21,7 +21,7 @@ export function useReVote(roomId: string, roundId: string | null): ReVoteAction 
   const refusedThisRound = mutation.error !== null && mutation.variables === roundId;
 
   return {
-    again: () => {
+    reVote: () => {
       if (roundId !== null) {
         mutation.mutate(roundId);
       }
