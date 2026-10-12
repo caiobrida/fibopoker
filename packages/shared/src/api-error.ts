@@ -8,6 +8,8 @@ export const API_ERROR_CODES = [
   'round_already_revealed',
   'round_still_open',
   'invalid_estimate',
+  'spectator_never_estimates',
+  'estimate_already_cast',
   'invalid_request',
 ] as const;
 

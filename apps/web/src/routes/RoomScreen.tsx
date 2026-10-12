@@ -4,15 +4,21 @@ import { useParams } from 'react-router';
 import {
   useCastEstimate,
   useJoinRoom,
+  useLeaveRoom,
   useOpenRound,
+  useRename,
   useRevealRound,
   useReVote,
   useRoomState,
   useSetFinalEstimate,
+  useSetSpectating,
   type CastEstimateAction,
+  type LeaveRoomAction,
   type OpenRoundAction,
+  type RenameAction,
   type ReVoteAction,
   type SetFinalEstimateAction,
+  type SetSpectatingAction,
 } from '../shared/api/index.ts';
 import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
@@ -27,6 +33,7 @@ import styles from './RoomScreen.module.css';
 import { RoomTable } from './RoomTable.tsx';
 import { RoundInTheMiddle } from './RoundInTheMiddle.tsx';
 import { useArrival, type Arrival } from './use-arrival.ts';
+import { YourPresence } from './YourPresence.tsx';
 
 type CopyOutcome = 'untouched' | 'copied' | 'blocked';
 
@@ -88,11 +95,23 @@ function ShareBlock({ link }: { link: string }) {
   );
 }
 
-function RoomBanner({ participants, self }: { participants: Participant[]; self: Participant }) {
+function RoomBanner({
+  participants,
+  self,
+  renaming,
+  spectating,
+  leaving,
+}: {
+  participants: Participant[];
+  self: Participant;
+  renaming: RenameAction;
+  spectating: SetSpectatingAction;
+  leaving: LeaveRoomAction;
+}) {
   return (
     <header className={styles.banner}>
       <Heading>The Room is open</Heading>
-      <Lead>You are in as {self.nickname}.</Lead>
+      <YourPresence self={self} renaming={renaming} spectating={spectating} leaving={leaving} />
       {sharedWithSomebodyElse(participants, self) ? (
         <Alert>Somebody else in the Room answers to that nickname too.</Alert>
       ) : null}
@@ -102,32 +121,34 @@ function RoomBanner({ participants, self }: { participants: Participant[]; self:
 
 function TheHand({
   round,
+  self,
   estimating,
   settling,
   reVoting,
   opening,
-  seated,
 }: {
   round: RoomSnapshot['round'];
+  self: Participant | null;
   estimating: CastEstimateAction;
   settling: SetFinalEstimateAction;
   reVoting: ReVoteAction;
   opening: OpenRoundAction;
-  seated: boolean;
 }) {
   if (round?.state === 'open') {
-    return (
+    return self !== null && self.spectating ? (
+      <Note>You are spectating this Round — the Deck comes back when you join the voting.</Note>
+    ) : (
       <Deck
         label="The Deck"
         chosen={round.selfEstimate}
         choosing={estimating.choosing}
-        disabled={!seated}
+        disabled={self === null}
         onChoose={estimating.cast}
       />
     );
   }
 
-  if (round?.state !== 'revealed' || !seated) {
+  if (round?.state !== 'revealed' || self === null) {
     return null;
   }
 
@@ -186,6 +207,9 @@ function TheRoom({
 }) {
   const round = room.round;
   const joinRoom = useJoinRoom(room.id);
+  const rename = useRename(room.id);
+  const setSpectating = useSetSpectating(room.id);
+  const leaveRoom = useLeaveRoom(room.id);
   const openRound = useOpenRound(room.id);
   const castEstimate = useCastEstimate(room.id, round === null ? null : round.id);
   const revealRound = useRevealRound(room.id, round === null ? null : round.id);
@@ -197,9 +221,15 @@ function TheRoom({
   return (
     <Screen width="wide">
       {self !== null && arrival === 'seated' ? (
-        <RoomBanner participants={room.participants} self={self} />
+        <RoomBanner
+          participants={room.participants}
+          self={self}
+          renaming={rename}
+          spectating={setSpectating}
+          leaving={leaveRoom}
+        />
       ) : (
-        <EntryPanel participants={others} action={joinRoom} leaving={self !== null} />
+        <EntryPanel participants={others} action={joinRoom} seated={self !== null} />
       )}
       <RoomTable
         participants={room.participants}
@@ -216,11 +246,11 @@ function TheRoom({
         hand={
           <TheHand
             round={round}
+            self={self}
             estimating={castEstimate}
             settling={setFinalEstimate}
             reVoting={reVote}
             opening={openRound}
-            seated={self !== null}
           />
         }
       />

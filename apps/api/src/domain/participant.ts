@@ -6,8 +6,16 @@ export type Participant = {
   id: string;
   nickname: string;
   tokenHash: string;
+  spectating: boolean;
   joinedAt: Date;
   lastSeenAt: Date;
+  leftAt: Date | null;
+};
+
+export type Departure = {
+  participantId: string;
+  at: Date;
+  withdrawingFrom: string | null;
 };
 
 export function issueToken(): string {
@@ -16,4 +24,8 @@ export function issueToken(): string {
 
 export function hashedToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
+}
+
+export function hasNotLeft(participant: Participant): boolean {
+  return participant.leftAt === null;
 }

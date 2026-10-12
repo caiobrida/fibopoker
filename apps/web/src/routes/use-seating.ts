@@ -8,6 +8,7 @@ export type SeatedParticipant = {
   id: string;
   nickname: string;
   mine: boolean;
+  spectating: boolean;
   hasVoted: boolean;
   estimate: string | null;
   standing: Standing;
@@ -32,6 +33,7 @@ function seatedAround(
       id: occupant.id,
       nickname: occupant.nickname,
       mine: occupant.id === selfId,
+      spectating: occupant.spectating,
       hasVoted: occupant.hasVoted,
       estimate,
       standing: estimate === null ? 'neutral' : (standings.get(estimate) ?? 'neutral'),

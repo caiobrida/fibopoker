@@ -4,11 +4,14 @@ import { CLOCK, type Clock } from './domain/clock.js';
 import { CreateRoom } from './domain/create-room.js';
 import { GetRoomSnapshot } from './domain/get-room-snapshot.js';
 import { JoinRoom } from './domain/join-room.js';
+import { LeaveRoom } from './domain/leave-room.js';
 import { OpenRound } from './domain/open-round.js';
+import { RenameSelf } from './domain/rename-self.js';
 import { ReVote } from './domain/re-vote.js';
 import { RevealRound } from './domain/reveal-round.js';
 import { ROOM_REPOSITORY, type RoomRepository } from './domain/room-repository.js';
 import { SetFinalEstimate } from './domain/set-final-estimate.js';
+import { SetSpectating } from './domain/set-spectating.js';
 import { RoomsController } from './http/rooms.controller.js';
 import { PrismaRoomRepository } from './infra/prisma-room-repository.js';
 import { prisma } from './infra/prisma.js';
@@ -33,6 +36,21 @@ import { SystemClock } from './infra/system-clock.js';
     {
       provide: JoinRoom,
       useFactory: (rooms: RoomRepository, clock: Clock) => new JoinRoom(rooms, clock),
+      inject: [ROOM_REPOSITORY, CLOCK],
+    },
+    {
+      provide: RenameSelf,
+      useFactory: (rooms: RoomRepository) => new RenameSelf(rooms),
+      inject: [ROOM_REPOSITORY],
+    },
+    {
+      provide: SetSpectating,
+      useFactory: (rooms: RoomRepository) => new SetSpectating(rooms),
+      inject: [ROOM_REPOSITORY],
+    },
+    {
+      provide: LeaveRoom,
+      useFactory: (rooms: RoomRepository, clock: Clock) => new LeaveRoom(rooms, clock),
       inject: [ROOM_REPOSITORY, CLOCK],
     },
     {

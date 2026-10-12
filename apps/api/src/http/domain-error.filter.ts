@@ -11,6 +11,8 @@ const STATUS_BY_CODE: Record<ApiErrorCode, HttpStatus> = {
   round_already_revealed: HttpStatus.CONFLICT,
   round_still_open: HttpStatus.CONFLICT,
   invalid_estimate: HttpStatus.BAD_REQUEST,
+  spectator_never_estimates: HttpStatus.CONFLICT,
+  estimate_already_cast: HttpStatus.CONFLICT,
   invalid_request: HttpStatus.BAD_REQUEST,
 };
 

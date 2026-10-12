@@ -20,6 +20,7 @@ export const nicknameSchema = z
 export const participantSchema = z.object({
   id: participantIdSchema,
   nickname: nicknameSchema,
+  spectating: z.boolean(),
   hasVoted: z.boolean(),
 });
 
@@ -31,8 +32,20 @@ export const joinRoomResponseSchema = z.object({
   token: participantTokenSchema,
 });
 
+export const renameRequestSchema = z.object({
+  nickname: nicknameSchema,
+});
+
+export const setSpectatingRequestSchema = z.object({
+  spectating: z.boolean({ error: 'Spectating is either on or off.' }),
+});
+
 export type Participant = z.infer<typeof participantSchema>;
 
 export type JoinRoomRequest = z.infer<typeof joinRoomRequestSchema>;
 
 export type JoinRoomResponse = z.infer<typeof joinRoomResponseSchema>;
+
+export type RenameRequest = z.infer<typeof renameRequestSchema>;
+
+export type SetSpectatingRequest = z.infer<typeof setSpectatingRequestSchema>;

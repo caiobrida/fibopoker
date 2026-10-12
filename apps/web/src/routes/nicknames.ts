@@ -13,3 +13,7 @@ export function sharedWithSomebodyElse(participants: Participant[], self: Partic
     (participant) => participant.id !== self.id && same(participant.nickname, self.nickname),
   );
 }
+
+export function sentencesIn(issues: { message: string }[]): string {
+  return issues.map(({ message }) => message).join(' ');
+}

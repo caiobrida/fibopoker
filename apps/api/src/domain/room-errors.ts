@@ -57,3 +57,21 @@ export class RoundStillOpenError extends DomainError {
     );
   }
 }
+
+export class SpectatorNeverEstimatesError extends DomainError {
+  readonly code = 'spectator_never_estimates';
+
+  constructor() {
+    super('A Spectator is present in this Room without estimating in it');
+  }
+}
+
+export class EstimateAlreadyCastError extends DomainError {
+  readonly code = 'estimate_already_cast';
+
+  constructor() {
+    super(
+      'This Participant holds an Estimate the tally has counted in the open Round, and spectating would silently drop it',
+    );
+  }
+}
