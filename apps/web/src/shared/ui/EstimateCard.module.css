@@ -1,0 +1,43 @@
+.card {
+  appearance: none;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--card-width);
+  height: var(--card-height);
+  background-color: var(--surface-elevated);
+  border: var(--border-width) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-feedback) var(--ease-standard),
+    border-color var(--duration-feedback) var(--ease-standard),
+    translate var(--duration-feedback) var(--ease-standard);
+}
+
+.card[data-state='offered']:hover:not(:disabled) {
+  background-color: var(--surface-elevated-hover);
+  translate: 0 calc(var(--space-2) * -1);
+}
+
+.card:disabled {
+  cursor: default;
+  opacity: var(--opacity-disabled);
+}
+
+.card[data-state='chosen'] {
+  background-color: var(--state-voted-surface);
+  border-color: var(--state-voted-border);
+  translate: 0 calc(var(--space-2) * -1);
+}
+
+.card[data-state='choosing'] {
+  border-color: var(--border-prominent);
+  translate: 0 calc(var(--space-2) * -1);
+}

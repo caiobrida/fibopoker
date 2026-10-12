@@ -11,6 +11,7 @@ export class CreateRoom {
       id: nanoid(ROOM_ID_LENGTH),
       revision: INITIAL_REVISION,
       participants: [],
+      rounds: [],
     };
 
     await this.rooms.create(room);

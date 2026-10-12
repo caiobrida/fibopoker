@@ -2,9 +2,28 @@ import type { Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
 import { RoomNotFoundError } from '../domain/room-errors.js';
 import type { RoomRepository } from '../domain/room-repository.js';
+import type { Estimate, Round } from '../domain/round.js';
+
+function copyOfRound(round: Round): Round {
+  return { ...round, estimates: round.estimates.map((estimate) => ({ ...estimate })) };
+}
 
 function copyOf(room: Room): Room {
-  return { ...room, participants: room.participants.map((participant) => ({ ...participant })) };
+  return {
+    ...room,
+    participants: room.participants.map((participant) => ({ ...participant })),
+    rounds: room.rounds.map(copyOfRound),
+  };
+}
+
+function holding(estimates: Estimate[], cast: Estimate): Estimate[] {
+  const replacing = estimates.some(({ participantId }) => participantId === cast.participantId);
+
+  return replacing
+    ? estimates.map((estimate) =>
+        estimate.participantId === cast.participantId ? { ...cast } : estimate,
+      )
+    : [...estimates, { ...cast }];
 }
 
 export class InMemoryRoomRepository implements RoomRepository {
@@ -40,6 +59,22 @@ export class InMemoryRoomRepository implements RoomRepository {
         participant.id === participantId ? { ...participant, lastSeenAt: at } : participant,
       ),
     });
+  }
+
+  async openRound(roomId: string, round: Round): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      rounds: [...room.rounds, copyOfRound(round)],
+    }));
+  }
+
+  async castEstimate(roomId: string, roundId: string, estimate: Estimate): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      rounds: room.rounds.map((round) =>
+        round.id === roundId ? { ...round, estimates: holding(round.estimates, estimate) } : round,
+      ),
+    }));
   }
 
   private bumpingRevision(roomId: string, write: (room: Room) => Room): void {

@@ -1,4 +1,4 @@
-export { DECK, type DeckValue } from './deck.js';
+export { DECK, isInTheDeck, type DeckValue } from './deck.js';
 export { apiErrorSchema, type ApiError, type ApiErrorCode } from './api-error.js';
 export {
   NICKNAME_MAX_LENGTH,
@@ -13,3 +13,15 @@ export {
   type Participant,
 } from './participant.js';
 export { ROOM_ID_LENGTH, roomSnapshotSchema, type RoomSnapshot } from './room.js';
+export {
+  ROUND_ID_LENGTH,
+  ROUND_TITLE_MAX_LENGTH,
+  castEstimateRequestSchema,
+  openRoundRequestSchema,
+  openRoundResponseSchema,
+  roundTitleSchema,
+  type CastEstimateRequest,
+  type OpenRoundRequest,
+  type OpenRoundResponse,
+  type Round,
+} from './round.js';

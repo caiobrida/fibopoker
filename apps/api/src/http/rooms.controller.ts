@@ -1,13 +1,20 @@
 import {
+  castEstimateRequestSchema,
   joinRoomRequestSchema,
+  openRoundRequestSchema,
+  type CastEstimateRequest,
   type JoinRoomRequest,
   type JoinRoomResponse,
+  type OpenRoundRequest,
+  type OpenRoundResponse,
   type RoomSnapshot,
 } from '@fibopoker/shared';
-import { Body, Controller, Get, Headers, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Put } from '@nestjs/common';
+import { CastEstimate } from '../domain/cast-estimate.js';
 import { CreateRoom } from '../domain/create-room.js';
 import { GetRoomSnapshot } from '../domain/get-room-snapshot.js';
 import { JoinRoom } from '../domain/join-room.js';
+import { OpenRound } from '../domain/open-round.js';
 import { bearerToken } from './bearer-token.js';
 import { ZodValidationPipe } from './zod-validation.pipe.js';
 
@@ -17,6 +24,8 @@ export class RoomsController {
     private readonly createRoom: CreateRoom,
     private readonly joinRoom: JoinRoom,
     private readonly getRoomSnapshot: GetRoomSnapshot,
+    private readonly openRound: OpenRound,
+    private readonly castEstimate: CastEstimate,
   ) {}
 
   @Post()
@@ -38,5 +47,29 @@ export class RoomsController {
     @Headers('authorization') authorization: string | undefined,
   ): Promise<RoomSnapshot> {
     return this.getRoomSnapshot.execute({ roomId, token: bearerToken(authorization) });
+  }
+
+  @Post(':roomId/rounds')
+  open(
+    @Param('roomId') roomId: string,
+    @Headers('authorization') authorization: string | undefined,
+    @Body(new ZodValidationPipe(openRoundRequestSchema)) { title }: OpenRoundRequest,
+  ): Promise<OpenRoundResponse> {
+    return this.openRound.execute({ roomId, token: bearerToken(authorization), title });
+  }
+
+  @Put(':roomId/rounds/:roundId/estimate')
+  cast(
+    @Param('roomId') roomId: string,
+    @Param('roundId') roundId: string,
+    @Headers('authorization') authorization: string | undefined,
+    @Body(new ZodValidationPipe(castEstimateRequestSchema)) { value }: CastEstimateRequest,
+  ): Promise<void> {
+    return this.castEstimate.execute({
+      roomId,
+      roundId,
+      token: bearerToken(authorization),
+      value,
+    });
   }
 }

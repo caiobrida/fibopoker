@@ -1,0 +1,27 @@
+.title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.title[data-titled='no'] {
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+
+.awaiting {
+  margin: 0;
+  font-weight: var(--weight-medium);
+}
+
+.opening {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: stretch;
+  width: 100%;
+  text-align: start;
+}

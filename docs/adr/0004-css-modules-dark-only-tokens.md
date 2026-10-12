@@ -29,8 +29,19 @@ Since ticket 02 the one place they live is `apps/web/src/shared/ui/tokens.css`, 
 | `--action-primary-surface`       | `#ececec` | the primary action, inverted                       |
 | `--action-primary-surface-hover` | `#ffffff` | the primary action under the pointer               |
 | `--action-primary-text`          | `#171717` | text on the primary action                         |
+| `--state-voted-surface`          | `#2b4034` | an Estimate is in, and later consensus             |
+| `--state-voted-border`           | `#5c8f70` | the edge of the same                               |
 
 The primary action is inverted — a near-white surface with dark text — rather than a brand colour,
 which is why it reuses the text palette's values instead of introducing its own.
 
-The two state colours are deliberately left unfixed here. They have to be desaturated enough to sit inside this palette without shouting, and choosing them against the real revealed-Round screen beats choosing them in the abstract. One reads as voted and consensus, the other as divergence.
+**The voted colour was chosen in ticket 08**, against the real table rather than in the abstract: a
+desaturated green that fills the Estimate slot in a seat and the card you picked out of the Deck.
+Calibrated at a full table — at eight seats, five of them voted, the filled slots are findable in one
+sweep of the eye and still quiet enough that nobody reads them as an alert. It carries consensus
+later for the same reason it carries voted now: it is the colour of agreement, and a revealed Round
+that lands on one number should look like this.
+
+The divergence colour is still deliberately unfixed. Ticket 09 chooses it the same way — against the
+real revealed Round, where it has to be legible beside the voted green without the two reading as a
+traffic light.

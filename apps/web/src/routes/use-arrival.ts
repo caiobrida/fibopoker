@@ -4,7 +4,7 @@ import { motionDuration } from '../shared/ui/motion.ts';
 
 type Status = RoomState['status'];
 
-type Arrival = 'standing' | 'taking-a-seat' | 'seated';
+export type Arrival = 'standing' | 'taking-a-seat' | 'seated';
 
 function arrivalAfter(before: Status, now: Status): Arrival {
   if (now !== 'present') {

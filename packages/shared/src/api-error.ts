@@ -3,6 +3,9 @@ import { z } from 'zod';
 export const API_ERROR_CODES = [
   'room_not_found',
   'unknown_participant',
+  'round_not_found',
+  'round_already_open',
+  'invalid_estimate',
   'invalid_request',
 ] as const;
 

@@ -1,8 +1,10 @@
 import {
   apiErrorSchema,
   joinRoomResponseSchema,
+  openRoundResponseSchema,
   roomSnapshotSchema,
   type JoinRoomResponse,
+  type OpenRoundResponse,
   type RoomSnapshot,
 } from '@fibopoker/shared';
 import type { ZodType } from 'zod';
@@ -13,6 +15,10 @@ const UNREACHABLE = 'The API could not be reached.';
 const UNINTELLIGIBLE = 'The API answered with something this app does not understand.';
 
 export class StaleIdentityError extends Error {}
+
+function authorization(token: string | null): HeadersInit {
+  return token === null ? {} : { Authorization: `Bearer ${token}` };
+}
 
 async function send(path: string, init?: RequestInit): Promise<Response> {
   try {
@@ -32,6 +38,25 @@ async function failureFrom(response: Response): Promise<Error> {
   return parsed.data.code === 'unknown_participant'
     ? new StaleIdentityError(parsed.data.message)
     : new Error(parsed.data.message);
+}
+
+async function sendJson(
+  path: string,
+  method: string,
+  token: string | null,
+  body: unknown,
+): Promise<Response> {
+  const response = await send(path, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...authorization(token) },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    throw await failureFrom(response);
+  }
+
+  return response;
 }
 
 async function bodyOf<T>(response: Response, schema: ZodType<T>): Promise<T> {
@@ -55,15 +80,7 @@ export async function createRoom(): Promise<RoomSnapshot> {
 }
 
 export async function joinRoom(roomId: string, nickname: string): Promise<JoinRoomResponse> {
-  const response = await send(`/rooms/${roomId}/participants`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nickname }),
-  });
-
-  if (!response.ok) {
-    throw await failureFrom(response);
-  }
+  const response = await sendJson(`/rooms/${roomId}/participants`, 'POST', null, { nickname });
 
   return bodyOf(response, joinRoomResponseSchema);
 }
@@ -72,9 +89,7 @@ export async function fetchRoomSnapshot(
   roomId: string,
   token: string | null,
 ): Promise<RoomSnapshot | null> {
-  const response = await send(`/rooms/${roomId}`, {
-    headers: token === null ? undefined : { Authorization: `Bearer ${token}` },
-  });
+  const response = await send(`/rooms/${roomId}`, { headers: authorization(token) });
 
   if (response.status === 404) {
     return null;
@@ -85,4 +100,23 @@ export async function fetchRoomSnapshot(
   }
 
   return bodyOf(response, roomSnapshotSchema);
+}
+
+export async function openRound(
+  roomId: string,
+  token: string | null,
+  title: string | null,
+): Promise<OpenRoundResponse> {
+  const response = await sendJson(`/rooms/${roomId}/rounds`, 'POST', token, { title });
+
+  return bodyOf(response, openRoundResponseSchema);
+}
+
+export async function castEstimate(
+  roomId: string,
+  roundId: string,
+  token: string | null,
+  value: string,
+): Promise<void> {
+  await sendJson(`/rooms/${roomId}/rounds/${roundId}/estimate`, 'PUT', token, { value });
 }

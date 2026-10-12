@@ -63,7 +63,7 @@ export function useRoomState(roomId: string): RoomState {
     queryFn: async () => {
       const room = await readRoom(roomId);
 
-      cadence.noticed(room === null ? null : room.revision);
+      cadence.noticed(room);
 
       return room;
     },

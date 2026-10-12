@@ -20,6 +20,7 @@ export const nicknameSchema = z
 export const participantSchema = z.object({
   id: participantIdSchema,
   nickname: nicknameSchema,
+  hasVoted: z.boolean(),
 });
 
 export const joinRoomRequestSchema = z.object({

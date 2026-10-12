@@ -25,7 +25,7 @@ The Deck value a Participant picks in a Round. Recorded as the literal value cho
 _Avoid_: vote, point, card, score
 
 **Deck**:
-The fixed set of values a Participant may choose from: `0, 1, 2, 3, 5, 8, 13, 21, ?, ☕`. `?` means the task is not understood well enough to estimate; `☕` asks for a break.
+The fixed set of values a Participant may choose from: `0, 1, 2, 3, 5, 8, 13, 21, ?, ☕`. `?` means the task is not understood well enough to estimate; `☕` asks for a break. The cards the screen draws are furniture, the same way the table is — a `card` in the interface is a drawn thing, never a word for an Estimate or for the Deck itself.
 _Avoid_: scale, cards, sequence
 
 **Reveal**:
