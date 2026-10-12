@@ -1,11 +1,10 @@
 import { isInTheDeck } from '@fibopoker/shared';
 import type { Clock } from './clock.js';
-import { participantHolding, roundIn } from './room.js';
+import { actingIn, openRoundOf } from './room.js';
 import {
   EstimateOutsideTheDeckError,
   RoomNotFoundError,
   RoundNotFoundError,
-  UnknownParticipantError,
 } from './room-errors.js';
 import type { RoomRepository } from './room-repository.js';
 
@@ -32,29 +31,21 @@ export class CastEstimate {
       throw new RoomNotFoundError(roomId);
     }
 
-    const self = token === null ? null : participantHolding(room, token);
+    const self = actingIn(room, token);
+    const round = openRoundOf(room);
 
-    if (self === null) {
-      throw new UnknownParticipantError();
-    }
-
-    const round = roundIn(room, roundId);
-
-    if (round === null) {
+    if (round === null || round.id !== roundId) {
       throw new RoundNotFoundError(roundId);
     }
 
     if (!isInTheDeck(value)) {
-      throw new EstimateOutsideTheDeckError(value);
+      throw new EstimateOutsideTheDeckError();
     }
-
-    const now = this.clock.now();
 
     await this.rooms.castEstimate(room.id, round.id, {
       participantId: self.id,
       value,
-      castAt: now,
+      castAt: this.clock.now(),
     });
-    await this.rooms.markSeen(room.id, self.id, now);
   }
 }

@@ -1,6 +1,7 @@
 import type { RoomSnapshot } from '@fibopoker/shared';
 import type { Participant } from './participant.js';
 import { hashedToken } from './participant.js';
+import { UnknownParticipantError } from './room-errors.js';
 import { estimateBy, isOpen, type Round } from './round.js';
 
 export const INITIAL_REVISION = 1;
@@ -42,10 +43,6 @@ export function openRoundOf(room: Room): Round | null {
   return room.rounds.find(isOpen) ?? null;
 }
 
-export function roundIn(room: Room, roundId: string): Round | null {
-  return room.rounds.find(({ id }) => id === roundId) ?? null;
-}
-
 function roundOf(round: Round, self: Participant | null): RoomSnapshot['round'] {
   return {
     id: round.id,
@@ -75,4 +72,14 @@ export function participantHolding(room: Room, token: string): Participant | nul
   const presented = hashedToken(token);
 
   return room.participants.find(({ tokenHash }) => tokenHash === presented) ?? null;
+}
+
+export function actingIn(room: Room, token: string | null): Participant {
+  const self = token === null ? null : participantHolding(room, token);
+
+  if (self === null) {
+    throw new UnknownParticipantError();
+  }
+
+  return self;
 }

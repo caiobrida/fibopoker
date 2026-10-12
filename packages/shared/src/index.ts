@@ -21,7 +21,7 @@ export {
   openRoundResponseSchema,
   roundTitleSchema,
   type CastEstimateRequest,
-  type OpenRound,
   type OpenRoundRequest,
   type OpenRoundResponse,
+  type Round,
 } from './round.js';

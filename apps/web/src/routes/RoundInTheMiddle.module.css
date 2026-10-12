@@ -7,6 +7,11 @@
   text-wrap: balance;
 }
 
+.title[data-titled='no'] {
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+
 .awaiting {
   margin: 0;
   font-weight: var(--weight-medium);

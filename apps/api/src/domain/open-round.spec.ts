@@ -157,7 +157,7 @@ describe('Opening a Round', () => {
     await expect(opened).rejects.toThrow(RoomNotFoundError);
   });
 
-  it('keeps the opener present, because opening a Round is being there', async () => {
+  it('does not stand in for being there, because reading the Room is what says that', async () => {
     const rooms = new InMemoryRoomRepository();
     const clock = new ManualClock(A_MONDAY_MORNING);
     const { roomId, token } = await aRoomWithSomebodyInIt(rooms, clock);
@@ -167,6 +167,7 @@ describe('Opening a Round', () => {
 
     const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: null });
 
-    expect(snapshot.participants.map(({ nickname }) => nickname)).toEqual(['Alice']);
+    expect(snapshot.participants).toEqual([]);
+    expect(snapshot.round).not.toBeNull();
   });
 });

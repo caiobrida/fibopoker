@@ -1,8 +1,8 @@
 import {
   ROUND_TITLE_MAX_LENGTH,
   roundTitleSchema,
-  type OpenRound,
   type Participant,
+  type Round,
 } from '@fibopoker/shared';
 import { useState, type FormEvent } from 'react';
 import type { OpenRoundAction } from '../shared/api/index.ts';
@@ -10,7 +10,7 @@ import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
 import { Input } from '../shared/ui/Input.tsx';
 import { Note } from '../shared/ui/Screen.tsx';
-import styles from './Round.module.css';
+import styles from './RoundInTheMiddle.module.css';
 
 const TITLE_ID = 'round-title';
 
@@ -20,16 +20,12 @@ function howManyHaveVoted(participants: Participant[]): string {
   return `${voted} of ${participants.length} voted`;
 }
 
-function BeingEstimated({
-  round,
-  participants,
-}: {
-  round: OpenRound;
-  participants: Participant[];
-}) {
+function BeingEstimated({ round, participants }: { round: Round; participants: Participant[] }) {
   return (
     <>
-      <p className={styles.title}>{round.title ?? 'A quick vote'}</p>
+      <p className={styles.title} data-titled={round.title === null ? 'no' : 'yes'}>
+        {round.title ?? 'An untitled Round'}
+      </p>
       <Note>{howManyHaveVoted(participants)}</Note>
     </>
   );
@@ -66,12 +62,12 @@ function Opening({ action }: { action: OpenRoundAction }) {
   );
 }
 
-export function Round({
+export function RoundInTheMiddle({
   round,
   participants,
   opening,
 }: {
-  round: OpenRound | null;
+  round: Round | null;
   participants: Participant[];
   opening: OpenRoundAction | null;
 }) {

@@ -15,9 +15,7 @@ export const roundTitleSchema = z
   .max(ROUND_TITLE_MAX_LENGTH, titleLength)
   .transform((title) => (title.length === 0 ? null : title));
 
-export const ESTIMATE_VALUE_MAX_LENGTH = 16;
-
-export const estimateValueSchema = z.string().min(1).max(ESTIMATE_VALUE_MAX_LENGTH);
+export const estimateValueSchema = z.string().min(1);
 
 export const openRoundRequestSchema = z.object({
   title: roundTitleSchema.nullable().default(null),
@@ -31,13 +29,13 @@ export const openRoundResponseSchema = z.object({
   id: roundIdSchema,
 });
 
-export const openRoundSchema = z.object({
+export const roundSchema = z.object({
   id: roundIdSchema,
   title: z.string().min(1).max(ROUND_TITLE_MAX_LENGTH).nullable(),
   selfEstimate: estimateValueSchema.nullable(),
 });
 
-export type OpenRound = z.infer<typeof openRoundSchema>;
+export type Round = z.infer<typeof roundSchema>;
 
 export type OpenRoundRequest = z.infer<typeof openRoundRequestSchema>;
 

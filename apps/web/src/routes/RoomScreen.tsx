@@ -1,13 +1,7 @@
-import type { Participant } from '@fibopoker/shared';
+import type { Participant, RoomSnapshot } from '@fibopoker/shared';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import {
-  useCastEstimate,
-  useJoinRoom,
-  useOpenRound,
-  useRoomState,
-  type RoomState,
-} from '../shared/api/index.ts';
+import { useCastEstimate, useJoinRoom, useOpenRound, useRoomState } from '../shared/api/index.ts';
 import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
@@ -15,22 +9,14 @@ import { Deck } from './Deck.tsx';
 import { EntryPanel } from './EntryPanel.tsx';
 import { sharedWithSomebodyElse } from './nicknames.ts';
 import { roomUrl } from './room-path.ts';
-import { Round } from './Round.tsx';
 import styles from './RoomScreen.module.css';
 import { RoomTable } from './RoomTable.tsx';
-import { useArrival } from './use-arrival.ts';
+import { RoundInTheMiddle } from './RoundInTheMiddle.tsx';
+import { useArrival, type Arrival } from './use-arrival.ts';
 
 type CopyOutcome = 'untouched' | 'copied' | 'blocked';
 
 const COPY_FEEDBACK_MS = 2000;
-
-function roundBeingEstimated(state: RoomState): string | null {
-  if (state.status !== 'present' && state.status !== 'unidentified') {
-    return null;
-  }
-
-  return state.room.round === null ? null : state.room.round.id;
-}
 
 export function RoomScreen() {
   const { roomId } = useParams();
@@ -102,9 +88,6 @@ function RoomBanner({ participants, self }: { participants: Participant[]; self:
 
 function Room({ roomId }: { roomId: string }) {
   const state = useRoomState(roomId);
-  const joinRoom = useJoinRoom(roomId);
-  const openRound = useOpenRound(roomId);
-  const castEstimate = useCastEstimate(roomId, roundBeingEstimated(state));
   const arrival = useArrival(state.status);
 
   if (state.status === 'resolving') {
@@ -128,8 +111,27 @@ function Room({ roomId }: { roomId: string }) {
     );
   }
 
-  const { room } = state;
-  const self = state.status === 'present' ? state.self : null;
+  return (
+    <TheRoom
+      room={state.room}
+      self={state.status === 'present' ? state.self : null}
+      arrival={arrival}
+    />
+  );
+}
+
+function TheRoom({
+  room,
+  self,
+  arrival,
+}: {
+  room: RoomSnapshot;
+  self: Participant | null;
+  arrival: Arrival;
+}) {
+  const joinRoom = useJoinRoom(room.id);
+  const openRound = useOpenRound(room.id);
+  const castEstimate = useCastEstimate(room.id, room.round === null ? null : room.round.id);
   const others =
     self === null ? room.participants : room.participants.filter(({ id }) => id !== self.id);
 
@@ -144,7 +146,7 @@ function Room({ roomId }: { roomId: string }) {
         participants={room.participants}
         selfId={self === null ? null : self.id}
         middle={
-          <Round
+          <RoundInTheMiddle
             round={room.round}
             participants={room.participants}
             opening={self === null ? null : openRound}

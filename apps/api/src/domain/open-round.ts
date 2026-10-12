@@ -1,12 +1,8 @@
 import { ROUND_ID_LENGTH, type OpenRoundResponse } from '@fibopoker/shared';
 import { nanoid } from 'nanoid';
 import type { Clock } from './clock.js';
-import { openRoundOf, participantHolding } from './room.js';
-import {
-  RoomNotFoundError,
-  RoundAlreadyOpenError,
-  UnknownParticipantError,
-} from './room-errors.js';
+import { actingIn, openRoundOf } from './room.js';
+import { RoomNotFoundError, RoundAlreadyOpenError } from './room-errors.js';
 import type { RoomRepository } from './room-repository.js';
 import type { Round } from './round.js';
 
@@ -31,27 +27,21 @@ export class OpenRound {
       throw new RoomNotFoundError(roomId);
     }
 
-    const self = token === null ? null : participantHolding(room, token);
-
-    if (self === null) {
-      throw new UnknownParticipantError();
-    }
+    actingIn(room, token);
 
     if (openRoundOf(room) !== null) {
       throw new RoundAlreadyOpenError();
     }
 
-    const now = this.clock.now();
     const round: Round = {
       id: nanoid(ROUND_ID_LENGTH),
       title,
-      openedAt: now,
+      openedAt: this.clock.now(),
       revealedAt: null,
       estimates: [],
     };
 
     await this.rooms.openRound(room.id, round);
-    await this.rooms.markSeen(room.id, self.id, now);
 
     return { id: round.id };
   }

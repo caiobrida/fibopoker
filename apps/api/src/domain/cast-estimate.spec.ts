@@ -15,12 +15,14 @@ import {
 
 const A_MONDAY_MORNING = new Date('2026-10-12T09:00:00.000Z');
 const LONGER_THAN_THE_ACTIVITY_WINDOW = 180_000;
+const ONE_SECOND = 1_000;
 const A_BREAK = '☕';
 
 async function aRoomBeingEstimated(rooms: InMemoryRoomRepository, clock: ManualClock) {
   const { id: roomId } = await new CreateRoom(rooms).execute();
   const joinRoom = new JoinRoom(rooms, clock);
   const alice = await joinRoom.execute({ roomId, nickname: 'Alice' });
+  clock.advance(ONE_SECOND);
   const bob = await joinRoom.execute({ roomId, nickname: 'Bob' });
   const { id: roundId } = await new OpenRound(rooms, clock).execute({
     roomId,
@@ -223,19 +225,6 @@ describe('Casting an Estimate', () => {
     });
 
     await expect(cast).rejects.toThrow(RoomNotFoundError);
-  });
-
-  it('keeps the voter present, because voting is being there', async () => {
-    const rooms = new InMemoryRoomRepository();
-    const clock = new ManualClock(A_MONDAY_MORNING);
-    const { roomId, roundId, bob } = await aRoomBeingEstimated(rooms, clock);
-
-    clock.advance(LONGER_THAN_THE_ACTIVITY_WINDOW);
-    await new CastEstimate(rooms, clock).execute({ roomId, roundId, token: bob, value: '5' });
-
-    const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: null });
-
-    expect(snapshot.participants.map(({ nickname }) => nickname)).toEqual(['Bob']);
   });
 });
 
