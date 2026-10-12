@@ -77,6 +77,15 @@ export class InMemoryRoomRepository implements RoomRepository {
     }));
   }
 
+  async revealRound(roomId: string, roundId: string, at: Date): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      rounds: room.rounds.map((round) =>
+        round.id === roundId ? { ...round, revealedAt: at } : round,
+      ),
+    }));
+  }
+
   private bumpingRevision(roomId: string, write: (room: Room) => Room): void {
     const room = this.rooms.get(roomId);
 

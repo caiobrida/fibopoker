@@ -1,3 +1,4 @@
+import type { RoomSnapshot } from '@fibopoker/shared';
 import { describe, expect, it } from 'vitest';
 import { InMemoryRoomRepository } from '../testing/in-memory-room-repository.js';
 import { ManualClock } from '../testing/manual-clock.js';
@@ -17,6 +18,14 @@ const A_MONDAY_MORNING = new Date('2026-10-12T09:00:00.000Z');
 const LONGER_THAN_THE_ACTIVITY_WINDOW = 180_000;
 const ONE_SECOND = 1_000;
 const A_BREAK = '☕';
+
+function theOpenRound(snapshot: RoomSnapshot) {
+  if (snapshot.round?.state !== 'open') {
+    throw new Error('No Round is open in this snapshot');
+  }
+
+  return snapshot.round;
+}
 
 async function aRoomBeingEstimated(rooms: InMemoryRoomRepository, clock: ManualClock) {
   const { id: roomId } = await new CreateRoom(rooms).execute();
@@ -58,7 +67,7 @@ describe('Casting an Estimate', () => {
 
     const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: bob });
 
-    expect(snapshot.round?.selfEstimate).toBe('5');
+    expect(theOpenRound(snapshot).selfEstimate).toBe('5');
   });
 
   it('never tells anybody else what was picked', async () => {
@@ -71,7 +80,7 @@ describe('Casting an Estimate', () => {
 
     const alicesView = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: alice });
 
-    expect(alicesView.round?.selfEstimate).toBe('3');
+    expect(theOpenRound(alicesView).selfEstimate).toBe('3');
     expect(JSON.stringify(alicesView)).not.toContain(A_BREAK);
   });
 
@@ -86,7 +95,7 @@ describe('Casting an Estimate', () => {
 
     const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: bob });
 
-    expect(snapshot.round?.selfEstimate).toBe('8');
+    expect(theOpenRound(snapshot).selfEstimate).toBe('8');
     expect(snapshot.participants.filter(({ hasVoted }) => hasVoted)).toHaveLength(1);
   });
 
@@ -116,7 +125,7 @@ describe('Casting an Estimate', () => {
 
     const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: bob });
 
-    expect(snapshot.round?.selfEstimate).toBeNull();
+    expect(theOpenRound(snapshot).selfEstimate).toBeNull();
     expect(snapshot.participants.some(({ hasVoted }) => hasVoted)).toBe(false);
   });
 
@@ -260,7 +269,7 @@ describe('Who the tally counts', () => {
     expect(onReturning.participants).toEqual([
       expect.objectContaining({ nickname: 'Bob', hasVoted: true }),
     ]);
-    expect(onReturning.round?.selfEstimate).toBe('5');
+    expect(theOpenRound(onReturning).selfEstimate).toBe('5');
   });
 
   it('answers an unchanged Room with an unchanged snapshot, poll after poll', async () => {

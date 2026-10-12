@@ -89,6 +89,15 @@ export class PrismaRoomRepository implements RoomRepository {
     );
   }
 
+  revealRound(roomId: string, roundId: string, at: Date): Promise<void> {
+    return this.bumpingRevision(roomId, (transaction) =>
+      transaction.round.update({
+        where: { id: roundId, roomId, revealedAt: null },
+        data: { revealedAt: at },
+      }),
+    );
+  }
+
   private async bumpingRevision(
     roomId: string,
     write: (transaction: Prisma.TransactionClient) => Promise<unknown>,

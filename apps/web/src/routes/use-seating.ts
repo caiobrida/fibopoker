@@ -1,4 +1,4 @@
-import type { Participant } from '@fibopoker/shared';
+import type { Participant, RevealedEstimate } from '@fibopoker/shared';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motionDuration } from '../shared/ui/motion.ts';
 import { seatsAround, type SeatPosition } from './seating.ts';
@@ -8,16 +8,24 @@ export type SeatedParticipant = {
   nickname: string;
   mine: boolean;
   hasVoted: boolean;
+  estimate: string | null;
   position: SeatPosition;
   state: 'seated' | 'vacating';
 };
 
-function seatedAround(participants: Participant[], selfId: string | null): SeatedParticipant[] {
+function seatedAround(
+  participants: Participant[],
+  selfId: string | null,
+  revealed: RevealedEstimate[] | null,
+): SeatedParticipant[] {
+  const shown = new Map(revealed?.map(({ participantId, value }) => [participantId, value]));
+
   return seatsAround(participants).map(({ occupant, position }) => ({
     id: occupant.id,
     nickname: occupant.nickname,
     mine: occupant.id === selfId,
     hasVoted: occupant.hasVoted,
+    estimate: shown.get(occupant.id) ?? null,
     position,
     state: 'seated',
   }));
@@ -26,8 +34,12 @@ function seatedAround(participants: Participant[], selfId: string | null): Seate
 export function useSeating(
   participants: Participant[],
   selfId: string | null,
+  revealed: RevealedEstimate[] | null,
 ): SeatedParticipant[] {
-  const seated = useMemo(() => seatedAround(participants, selfId), [participants, selfId]);
+  const seated = useMemo(
+    () => seatedAround(participants, selfId, revealed),
+    [participants, selfId, revealed],
+  );
   const [vacating, setVacating] = useState<SeatedParticipant[]>([]);
   const previouslySeated = useRef(seated);
 

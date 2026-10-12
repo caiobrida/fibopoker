@@ -34,11 +34,17 @@
 }
 
 .estimate {
+  display: flex;
   flex: none;
+  align-items: center;
+  justify-content: center;
   width: var(--estimate-width);
   height: var(--estimate-height);
   border: var(--border-width) dashed var(--border-subtle);
   border-radius: var(--radius-sm);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
   transition:
     background-color var(--duration-settle) var(--ease-standard),
     border-color var(--duration-settle) var(--ease-standard);
@@ -48,6 +54,12 @@
   background-color: var(--state-voted-surface);
   border-style: solid;
   border-color: var(--state-voted-border);
+}
+
+.estimate[data-held='a-revealed-estimate'] {
+  background-color: var(--bg-recessed);
+  border-style: solid;
+  border-color: var(--border-prominent);
 }
 
 .occupant {

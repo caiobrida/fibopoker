@@ -20,7 +20,7 @@ export class RoundNotFoundError extends DomainError {
   readonly code = 'round_not_found';
 
   constructor(roundId: string) {
-    super(`No open Round in this Room answers to the identifier ${roundId}`);
+    super(`No Round in this Room answers to the identifier ${roundId}`);
   }
 }
 
@@ -37,5 +37,13 @@ export class EstimateOutsideTheDeckError extends DomainError {
 
   constructor() {
     super('The Estimate offered is not a value the Deck holds');
+  }
+}
+
+export class RoundAlreadyRevealedError extends DomainError {
+  readonly code = 'round_already_revealed';
+
+  constructor() {
+    super('This Round is revealed, and a revealed Round never changes');
   }
 }

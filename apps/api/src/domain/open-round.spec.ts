@@ -1,3 +1,4 @@
+import type { RoomSnapshot } from '@fibopoker/shared';
 import { describe, expect, it } from 'vitest';
 import { InMemoryRoomRepository } from '../testing/in-memory-room-repository.js';
 import { ManualClock } from '../testing/manual-clock.js';
@@ -13,6 +14,14 @@ import {
 
 const A_MONDAY_MORNING = new Date('2026-10-12T09:00:00.000Z');
 const LONGER_THAN_THE_ACTIVITY_WINDOW = 180_000;
+
+function theOpenRound(snapshot: RoomSnapshot) {
+  if (snapshot.round?.state !== 'open') {
+    throw new Error('No Round is open in this snapshot');
+  }
+
+  return snapshot.round;
+}
 
 async function aRoomWithSomebodyInIt(rooms: InMemoryRoomRepository, clock: ManualClock) {
   const { id: roomId } = await new CreateRoom(rooms).execute();
@@ -69,7 +78,7 @@ describe('Opening a Round', () => {
     const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token });
 
     expect(snapshot.participants.map(({ hasVoted }) => hasVoted)).toEqual([false]);
-    expect(snapshot.round?.selfEstimate).toBeNull();
+    expect(theOpenRound(snapshot).selfEstimate).toBeNull();
   });
 
   it('leaves a Room nobody has opened a Round in with no Round at all', async () => {

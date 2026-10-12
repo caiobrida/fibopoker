@@ -23,5 +23,6 @@ export {
   type CastEstimateRequest,
   type OpenRoundRequest,
   type OpenRoundResponse,
+  type RevealedEstimate,
   type Round,
 } from './round.js';
