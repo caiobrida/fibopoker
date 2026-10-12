@@ -8,7 +8,7 @@
   max-width: var(--measure);
 }
 
-.share {
+.panel {
   composes: rising from '../shared/ui/motion.module.css';
 
   display: flex;
@@ -21,9 +21,15 @@
   border-radius: var(--radius-md);
 }
 
-.link {
+.verbatim {
   margin: 0;
   overflow-wrap: anywhere;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
+}
+
+.exported {
+  composes: verbatim;
+
+  white-space: pre-wrap;
 }
