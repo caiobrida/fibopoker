@@ -1,3 +1,6 @@
+import { ROUND_ID_LENGTH } from '@fibopoker/shared';
+import { nanoid } from 'nanoid';
+
 export type Estimate = {
   participantId: string;
   value: string;
@@ -12,6 +15,17 @@ export type Round = {
   finalEstimate: string | null;
   estimates: Estimate[];
 };
+
+export function freshRound(title: string | null, openedAt: Date): Round {
+  return {
+    id: nanoid(ROUND_ID_LENGTH),
+    title,
+    openedAt,
+    revealedAt: null,
+    finalEstimate: null,
+    estimates: [],
+  };
+}
 
 export function isOpen(round: Round): boolean {
   return round.revealedAt === null;

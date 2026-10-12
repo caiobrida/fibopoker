@@ -53,7 +53,7 @@ export class RoundStillOpenError extends DomainError {
 
   constructor() {
     super(
-      'This Round is still open, and a Final Estimate comes out of the discussion a Reveal starts',
+      'This Round is still open, and a Final Estimate and a Re-vote both come out of the discussion a Reveal starts',
     );
   }
 }
