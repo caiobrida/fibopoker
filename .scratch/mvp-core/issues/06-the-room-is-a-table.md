@@ -58,7 +58,7 @@ ADR 0004 governs: no literal colours, spacings, radii or durations in components
 | ------------ | ------ | ------ | ------ | ------ | ------ |
 | Needs        | ~360px | ~460px | ~525px | ~640px | ~790px |
 
-So a dozen people need a nearly full-width desktop window, and a typical six fit on a phone. The fix is not a smaller seat — the geometry search above shows seat _width_ barely moves the binding constraint, which is vertical spacing at the flanks — so it is probably the whole figure scaling down as a unit, or a different arrangement below a breakpoint. That is the call ticket 14 exists to make. Nothing here is in its way: the ring comes from one aspect constant and the seat metrics are four tokens.
+So a dozen people need a nearly full-width desktop window, and a typical six fit on a phone. The fix is not a smaller seat — the geometry search above shows seat _width_ barely moves the binding constraint, which is vertical spacing at the flanks — so it is probably the whole figure scaling down as a unit, or a different arrangement below a breakpoint. That is the call ticket 14 exists to make, and ticket 07 later added the laptop half of the same problem to it. Nothing here is in its way: the ring comes from one aspect constant and the seat metrics are four tokens.
 
 ## How it was verified
 

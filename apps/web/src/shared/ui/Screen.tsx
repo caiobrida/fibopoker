@@ -15,12 +15,32 @@ export function Screen({
   );
 }
 
-export function Heading({ children }: { children: ReactNode }) {
-  return <h1 className={styles.heading}>{children}</h1>;
+export function Heading({
+  size = 'regular',
+  children,
+}: {
+  size?: 'regular' | 'large';
+  children: ReactNode;
+}) {
+  return (
+    <h1 className={styles.heading} data-size={size}>
+      {children}
+    </h1>
+  );
 }
 
-export function Lead({ children }: { children: ReactNode }) {
-  return <p className={styles.lead}>{children}</p>;
+export function Lead({
+  size = 'regular',
+  children,
+}: {
+  size?: 'regular' | 'large';
+  children: ReactNode;
+}) {
+  return (
+    <p className={styles.lead} data-size={size}>
+      {children}
+    </p>
+  );
 }
 
 export function Note({ children }: { children: ReactNode }) {

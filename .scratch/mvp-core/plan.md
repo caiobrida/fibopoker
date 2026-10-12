@@ -95,6 +95,8 @@ Tickets 06, 07 and 15 were written once ticket 05 had shipped and the Room could
 - **07 — Design the entry screens.** The create and nickname screens, which shipped functional and plain in tickets 02 and 04.
 - **15 — Motion pass.** The sibling of ticket 14 — the same kind of cross-cutting sweep, for motion rather than layout, landing after it.
 
+Ticket 14 was widened after ticket 07 shipped. It was "Mobile layout pass" and is now "Layout pass": the entry screen turned out to run out of **height** on a laptop before it ran out of width on a phone, and both are the same fixed-seat-size-in-a-shrunken-container problem. A separate ticket for the laptop case would have had to land between 14 and 15 — since 15 needs the layout settled — which is another way of saying it was already 14.
+
 Stage 4 above lists `ParticipantRow` among the primitives; ticket 06 is where that becomes a seat at a table instead. Stage 5's "Done" condition is unchanged and still the real one: two browsers, one link, each seeing the other vote and reveal with no manual reload.
 
 ## Explicitly out of scope
