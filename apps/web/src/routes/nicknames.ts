@@ -1,7 +1,7 @@
 import type { Participant } from '@fibopoker/shared';
 
 function same(one: string, other: string): boolean {
-  return one.trim().toLowerCase() === other.trim().toLowerCase();
+  return one.toLowerCase() === other.toLowerCase();
 }
 
 export function alreadyAtTheTable(participants: Participant[], nickname: string): boolean {

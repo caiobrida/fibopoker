@@ -45,6 +45,7 @@
   --radius-md: 0.75rem;
 
   --border-width: 1px;
+  --border-width-prominent: 2px;
   --border-width-focus: 2px;
 
   --duration-feedback: 120ms;

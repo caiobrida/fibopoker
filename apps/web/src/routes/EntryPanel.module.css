@@ -1,18 +1,30 @@
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
+.arrival {
+  display: grid;
+  grid-template-rows: 1fr;
   width: 100%;
   max-width: var(--measure-narrow);
   margin-inline: auto;
+}
+
+.arrival[data-state='leaving'] {
+  animation: withdraw var(--duration-departure) var(--ease-exit) forwards;
+}
+
+.panel {
+  composes: rising from '../shared/ui/motion.module.css';
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-height: 0;
+  overflow: hidden;
   padding: var(--space-8) var(--space-6);
   background-color: var(--surface-elevated);
   border: var(--border-width) solid var(--border-subtle);
   border-radius: var(--radius-md);
-  animation: approach var(--duration-arrival) var(--ease-entrance) both;
 }
 
-.panel[data-state='leaving'] {
+.arrival[data-state='leaving'] .panel {
   animation: sit var(--duration-departure) var(--ease-exit) forwards;
 }
 
@@ -29,7 +41,7 @@
   align-items: stretch;
 }
 
-.verdict {
+.alerts {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -43,15 +55,9 @@
   text-align: center;
 }
 
-@keyframes approach {
-  from {
-    opacity: 0;
-    translate: 0 var(--space-4);
-  }
-
+@keyframes withdraw {
   to {
-    opacity: 1;
-    translate: 0 0;
+    grid-template-rows: 0fr;
   }
 }
 
@@ -59,6 +65,5 @@
   to {
     opacity: 0;
     scale: 0.96;
-    translate: 0 var(--space-4);
   }
 }

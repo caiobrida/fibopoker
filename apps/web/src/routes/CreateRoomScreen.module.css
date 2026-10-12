@@ -3,7 +3,7 @@
   flex-direction: column;
   gap: var(--space-10);
   justify-content: center;
-  min-height: calc(100dvh - var(--space-8) * 2);
+  min-height: calc(100dvh - var(--screen-inset-block) * 2);
 }
 
 .hero {
@@ -31,7 +31,7 @@
   max-width: var(--measure);
 }
 
-.consequence {
+.reassurance {
   margin: 0;
   font-size: var(--text-sm);
   color: var(--text-secondary);

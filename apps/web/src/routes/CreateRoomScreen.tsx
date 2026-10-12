@@ -31,7 +31,7 @@ export function CreateRoomScreen() {
           >
             {createRoom.isCreating ? 'Opening a Room…' : 'Create a Room'}
           </Button>
-          <p className={styles.consequence}>
+          <p className={styles.reassurance}>
             It opens straight away, and the link you land on is the Room.
           </p>
           {createRoom.failure === null ? null : (
@@ -50,7 +50,7 @@ export function CreateRoomScreen() {
             <h2 className={styles.termName}>No sign-up</h2>
             <p className={styles.termBody}>
               No email, no password, nothing to confirm and nothing to install. Everyone you send
-              the link to is one click from the table.
+              the link to is one click from a seat.
             </p>
           </li>
           <li className={styles.term}>

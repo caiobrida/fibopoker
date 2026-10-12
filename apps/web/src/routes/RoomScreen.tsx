@@ -1,3 +1,4 @@
+import type { Participant } from '@fibopoker/shared';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useJoinRoom, useRoomState } from '../shared/api/index.ts';
@@ -80,6 +81,18 @@ function ShareBlock({ link }: { link: string }) {
   );
 }
 
+function RoomBanner({ participants, self }: { participants: Participant[]; self: Participant }) {
+  return (
+    <header className={styles.banner}>
+      <Heading>The Room is open</Heading>
+      <Lead>You are in as {self.nickname}.</Lead>
+      {sharedWithSomebodyElse(participants, self) ? (
+        <Alert>Somebody else in the Room answers to that nickname too.</Alert>
+      ) : null}
+    </header>
+  );
+}
+
 function Room({ roomId }: { roomId: string }) {
   const state = useRoomState(roomId);
   const joinRoom = useJoinRoom(roomId);
@@ -106,37 +119,19 @@ function Room({ roomId }: { roomId: string }) {
     );
   }
 
-  if (state.status === 'unidentified') {
-    return (
-      <Screen width="wide">
-        <EntryPanel participants={state.room.participants} action={joinRoom} leaving={false} />
-        <RoomTable participants={state.room.participants} selfId={null}>
-          <NoRoundYet />
-        </RoomTable>
-      </Screen>
-    );
-  }
-
-  const { room, self } = state;
+  const { room } = state;
+  const self = state.status === 'present' ? state.self : null;
+  const others =
+    self === null ? room.participants : room.participants.filter(({ id }) => id !== self.id);
 
   return (
     <Screen width="wide">
-      {arrival === 'seated' ? (
-        <header className={styles.banner}>
-          <Heading>The Room is open</Heading>
-          <Lead>You are in as {self.nickname}.</Lead>
-          {sharedWithSomebodyElse(room.participants, self) ? (
-            <Alert>Somebody else in the Room answers to that nickname too.</Alert>
-          ) : null}
-        </header>
+      {self !== null && arrival === 'seated' ? (
+        <RoomBanner participants={room.participants} self={self} />
       ) : (
-        <EntryPanel
-          participants={room.participants.filter(({ id }) => id !== self.id)}
-          action={joinRoom}
-          leaving
-        />
+        <EntryPanel participants={others} action={joinRoom} leaving={self !== null} />
       )}
-      <RoomTable participants={room.participants} selfId={self.id}>
+      <RoomTable participants={room.participants} selfId={self === null ? null : self.id}>
         <NoRoundYet />
       </RoomTable>
       {arrival === 'seated' ? <ShareBlock link={roomUrl(room.id)} /> : null}

@@ -36,7 +36,7 @@ The product name moved out of the heading and became a quiet tracked wordmark ab
 
 **The nickname screen's question is the field's label.** That is the whole of criterion 3's "an event, not a form field": there is no `Your nickname` caption above a box. The `<h1>` invites — `Take a seat` — and the `<label>` asks `What should the team call you?` at `--text-lg` in primary text, with a large field under it and a full-width action under that. Keeping it a real `<label htmlFor>` rather than an `aria-labelledby` pointing at the heading means the association is the plain HTML one, and the question is what a screen reader announces for the field.
 
-**Who is already there is said twice, on purpose.** The panel names them — `Ana, Bruno and Carla are already at the table.` — and the table below seats them. This looks like redundancy and is not: on a phone the software keyboard covers everything below the field, so the table is exactly what a person cannot see at the moment they are typing, and the sentence is what survives. They also carry different information, names versus the shape of the Room. Names are spelled out up to four, and only from five does it become `Ana, Bruno, Carla and 5 others` — an earlier pass capped at three and produced `and 1 more`, which spends a word hiding a name it could have said.
+**Who is already there is said twice, on purpose.** The panel names them — `Ana, Bruno and Carla are already at the table.` — and the table below seats them. This looks like redundancy and is not: on a phone the software keyboard covers everything below the field, so the table is exactly what a person cannot see at the moment they are typing, and the sentence is what survives. They also carry different information, names versus the shape of the Room. Names are spelled out up to four, and only from five does it become `Ana, Bruno and 2 others` — an earlier pass capped at three and produced `and 1 more`, which spends a word hiding a name it could have said.
 
 **The entry panel is kept mounted for `--duration-departure` after the Room says you are in.** `useArrival` watches the snapshot's status and reports `standing`, `taking-a-seat` or `seated`; the panel sinks and fades while your own seat arrives on the ring with ticket 06's existing `arrive`, and only then do the Room's banner and share block rise into place. The hold is a `setTimeout` reading the token through `motionDuration`, never an `animationend` — ADR 0009 forbids depending on an animation event for correctness, and a tab that is not rendering never delivers one.
 
@@ -70,9 +70,9 @@ Three ways out were considered and all three belong to ticket 14 rather than her
 
 The eight-Participant case already overlaps at phone width, which is ticket 06's documented debt and is unchanged by this ticket.
 
-## From the review — not yet acted on
+## From the review
 
-Both axes ran against `main...HEAD`. The standards axis found one hard violation, the spec axis found one real bug; the rest are judgement calls. **None of this is fixed yet** — the commit on this branch is the pre-review state.
+Both axes ran against `main...HEAD`. The standards axis found one hard violation, the spec axis found one real bug; the rest were judgement calls. What each one was is kept below as it was written; what was done about it is in the section after.
 
 ### Hard
 
@@ -105,3 +105,39 @@ Both axes ran against `main...HEAD`. The standards axis found one hard violation
 ### The laptop fold does not belong to ticket 14
 
 The note above parks it there. That is wrong and should not be relied on: every one of ticket 14's criteria is phone-width, and none of them picks up a composition that clips on a laptop. This ticket also made the case worse than it found it, since the panel is taller than the `aside` it replaced. It needs a decision of its own rather than a ticket that will not look for it.
+
+## What the review changed
+
+Everything above under "From the review" is now fixed, except where this section says otherwise. The findings are kept as written, because what they caught is more useful to the next ticket than a tidy summary would be.
+
+**"One click from the table" is now "one click from a seat".** The one place in the diff where `table` named the Room rather than the furniture.
+
+**A second join is no longer reachable.** `useJoinRoom` exposes `joined` — the mutation's own success — and the action is disabled on it as well as on `isJoining`. That closes the 200ms departure window and the longer pre-existing one that lasted the whole invalidate-and-refetch round trip, and because it reads `isSuccess` rather than a local flag, a failed join still allows a retry without anything having to reset. Verified by submitting and then submitting again inside the window: the Room ends with one new Participant, not two.
+
+**The panel now collapses as it leaves, and the numbers say why it mattered.** Measured: the card is 401px and the banner that replaces it is 87px, so the old swap moved the table 314px in one frame — a third of the viewport, in the middle of the one transition this ticket exists to make feel continuous. The card now sits inside a grid wrapper whose row animates `1fr → 0fr` over `--duration-departure` while the card itself fades, so the table rises with the motion instead of after it. Sampled across the animation: 426px, 397px, 305px, 150px, 66px.
+
+It stops at 66px rather than 0 because `min-height: 0` and `overflow: hidden` remove the card's _content_ from the grid track's automatic minimum but not its padding and border. That turns out to be lucky rather than unfortunate: 66px is close to the 87px banner, so the residual reflow is 21px instead of the 314px it started as. Animating the padding away in `sit` would have reclaimed the last 66px and made the residual _worse_, at 85px. It is left alone, and the reason is written down here because the next person to touch that padding will not otherwise know it is load-bearing.
+
+**`Alert` carries `role="status"`,** so all five of its uses are announced, not just the two that happened to sit inside the entry panel's live region. The panel's own `aria-live` is gone, since the role is now the one mechanism and nesting the two risked a double announcement. Its container keeps the id, which is what `aria-describedby` points at.
+
+**`Alert`'s leading edge has its own width token.** `--border-width-prominent` pairs with `--border-prominent` the way `--surface-prominent` was added in ticket 06, instead of borrowing the focus ring's width because the value matched.
+
+**`useArrival` no longer commits a throwaway panel.** It derives the state during render, holding the previous status in state rather than in a ref, which is React's own documented shape for this and is StrictMode-safe without having to reason about it. The `useLayoutEffect` is gone, and with it the reload path's mount-and-unmount of an `EntryPanel` whose autofocus nobody wanted.
+
+**`Room` has one return instead of two.** The table surviving the transition used to depend on `<RoomTable>` landing at the same child index in two separate returns — true, load-bearing, and invisible. There is now a single tree with the table between two conditionals, so the thing that was a coincidence is now the structure. `RoomBanner` came out of the branch while it was being rewritten.
+
+**The rise-in lives once, in `shared/ui/motion.module.css`,** composed by the panel, the banner and the share block rather than copied as identical keyframes into two route modules.
+
+**`Screen` publishes its own block padding** as `--screen-inset-block`, which the hero's `min-height` reads instead of restating `var(--space-8) * 2` and drifting silently if that padding ever changes.
+
+Smaller: `.consequence` is `.reassurance`, `.verdict` is `.alerts`, `listing()` is `joinedWithAnd()`, `Arrival` is no longer exported since nothing imports it, and `same()` lost a `.trim()` that could never fire because `nicknameSchema` had already trimmed both sides.
+
+### Not changed, and why
+
+**The copy-blocked `Alert` in the share block stays.** It is the Room screen rather than an entry screen, so the review is right that nothing asked for it. Reverting it would leave two spellings of the same role — a failure you need to notice — in one file, which is worse than the creep.
+
+**The example that was wrong is corrected in place:** with `NAMES_SPELLED_OUT = 3`, five Participants read "Ana, Bruno and 2 others"; "5 others" needs eight. The rule and the code were right, only the sentence describing them was not.
+
+### Still open, and not ticket 14's
+
+The laptop fold. The note above parks it on ticket 14 and that is wrong: every one of ticket 14's criteria is phone-width, so nobody working that ticket will go looking for a composition that clips on a laptop. This ticket also made the case worse than it found it, since the panel is taller than the `aside` it replaced. It wants a decision of its own rather than a ticket that will not look for it, and that decision is the maintainer's.

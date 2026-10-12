@@ -10,9 +10,9 @@ import { alreadyAtTheTable } from './nicknames.ts';
 
 const NAMES_SPELLED_OUT = 3;
 
-const VERDICT_ID = 'nickname-verdict';
+const ALERTS_ID = 'nickname-alerts';
 
-function listing(items: string[]): string {
+function joinedWithAnd(items: string[]): string {
   const leading = items.slice(0, -1);
   const last = items.slice(-1).join('');
 
@@ -28,7 +28,7 @@ function whoIsAlreadyHere(participants: Participant[]): string {
   const unnamed = names.length - NAMES_SPELLED_OUT;
   const named = unnamed > 1 ? [...names.slice(0, NAMES_SPELLED_OUT), `${unnamed} others`] : names;
 
-  return `${listing(named)} ${named.length === 1 ? 'is' : 'are'} already at the table.`;
+  return `${joinedWithAnd(named)} ${named.length === 1 ? 'is' : 'are'} already at the table.`;
 }
 
 function sentencesIn(issues: { message: string }[]): string {
@@ -58,43 +58,45 @@ export function EntryPanel({
   }
 
   return (
-    <section className={styles.panel} data-state={leaving ? 'leaving' : 'standing'}>
-      <header className={styles.welcome}>
-        <Heading>Take a seat</Heading>
-        <Lead>{whoIsAlreadyHere(participants)}</Lead>
-      </header>
-      <form className={styles.form} onSubmit={submit}>
-        <Input
-          id="nickname"
-          label="What should the team call you?"
-          size="large"
-          value={typed}
-          maxLength={NICKNAME_MAX_LENGTH}
-          autoComplete="off"
-          autoFocus
-          aria-describedby={VERDICT_ID}
-          aria-invalid={refusal !== null}
-          onChange={(event) => setTyped(event.target.value)}
-        />
-        <div className={styles.verdict} id={VERDICT_ID} aria-live="polite">
-          {refusal === null ? null : <Alert>{refusal}</Alert>}
-          {taken ? (
-            <Alert>Somebody at the table already answers to that. You can join anyway.</Alert>
-          ) : null}
-          {action.failure === null ? null : (
-            <Alert>The Room would not take you in: {action.failure}</Alert>
-          )}
-        </div>
-        <Button
-          variant="primary"
-          size="large"
-          type="submit"
-          disabled={!proposed.success || action.isJoining}
-        >
-          {action.isJoining ? 'Joining…' : 'Join the Room'}
-        </Button>
-      </form>
-      <p className={styles.assurance}>No account, no sign-up, and nothing to confirm.</p>
-    </section>
+    <div className={styles.arrival} data-state={leaving ? 'leaving' : 'standing'}>
+      <section className={styles.panel}>
+        <header className={styles.welcome}>
+          <Heading>Take a seat</Heading>
+          <Lead>{whoIsAlreadyHere(participants)}</Lead>
+        </header>
+        <form className={styles.form} onSubmit={submit}>
+          <Input
+            id="nickname"
+            label="What should the team call you?"
+            size="large"
+            value={typed}
+            maxLength={NICKNAME_MAX_LENGTH}
+            autoComplete="off"
+            autoFocus
+            aria-describedby={ALERTS_ID}
+            aria-invalid={refusal !== null}
+            onChange={(event) => setTyped(event.target.value)}
+          />
+          <div className={styles.alerts} id={ALERTS_ID}>
+            {refusal === null ? null : <Alert>{refusal}</Alert>}
+            {taken ? (
+              <Alert>Somebody at the table already answers to that. You can join anyway.</Alert>
+            ) : null}
+            {action.failure === null ? null : (
+              <Alert>The Room would not take you in: {action.failure}</Alert>
+            )}
+          </div>
+          <Button
+            variant="primary"
+            size="large"
+            type="submit"
+            disabled={!proposed.success || action.isJoining || action.joined}
+          >
+            {action.isJoining ? 'Joining…' : 'Join the Room'}
+          </Button>
+        </form>
+        <p className={styles.assurance}>No account, no sign-up, and nothing to confirm.</p>
+      </section>
+    </div>
   );
 }

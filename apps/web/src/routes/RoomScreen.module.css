@@ -1,10 +1,11 @@
 .banner {
+  composes: rising from '../shared/ui/motion.module.css';
+
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
   align-items: stretch;
   max-width: var(--measure);
-  animation: arrive var(--duration-arrival) var(--ease-entrance) both;
 }
 
 .awaiting {
@@ -13,6 +14,8 @@
 }
 
 .share {
+  composes: rising from '../shared/ui/motion.module.css';
+
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -21,7 +24,6 @@
   background-color: var(--bg-recessed);
   border: var(--border-width) solid var(--border-subtle);
   border-radius: var(--radius-md);
-  animation: arrive var(--duration-arrival) var(--ease-entrance) both;
 }
 
 .link {
@@ -29,16 +31,4 @@
   overflow-wrap: anywhere;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-}
-
-@keyframes arrive {
-  from {
-    opacity: 0;
-    translate: 0 var(--space-4);
-  }
-
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
 }
