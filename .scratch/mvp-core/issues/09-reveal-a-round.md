@@ -266,3 +266,22 @@ contract both apps must agree on.
 
 **One finding dissolved rather than being declined.** `Standing` was flagged as exported for nobody;
 it is now the type the seats carry.
+
+## From the deploy
+
+**The pull request's three GitHub workflows passed and Vercel's deploy of the API failed**, on a
+line the whole local toolchain accepts. `nest build` finishes, and then Vercel's Node builder runs a
+type-check of its own which does not honour the `target` in our tsconfig: `currentRoundOf`'s
+`rounds.at(-1)` came back as `TS2550: Property 'at' does not exist on type 'Round[]'`, with the
+error's own hint pointing at `lib`.
+
+The condition is reproducible locally — `tsc --target ES2019 --lib ES2019` raises the identical error
+at the identical line and column — so the fix was verified red and green rather than guessed at by
+deploying twice. `apps/api/tsconfig.json` now states `"lib": ["ES2023"]`, which an explicit setting
+makes immune to whatever `target` the builder forces.
+
+Declaring the library beat rewriting the expression, because the expression was not the problem:
+`origin-patterns.ts` already used `replaceAll`, one library version away from breaking the same way,
+and every ES2022-or-later builtin a future ticket reaches for would have been the same trap. The
+only honest reading of a deploy that compiles against a library older than the one the repo targets
+is that the library needed saying out loud.
