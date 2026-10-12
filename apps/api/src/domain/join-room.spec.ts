@@ -39,7 +39,9 @@ describe('Joining a Room', () => {
     const second = await getRoomSnapshot.execute({ roomId: created.id, token });
 
     expect(second.selfId).toBe(first.selfId);
-    expect(second.participants).toEqual([{ id: first.selfId, nickname: 'Alice', hasVoted: false }]);
+    expect(second.participants).toEqual([
+      { id: first.selfId, nickname: 'Alice', spectating: false, hasVoted: false },
+    ]);
   });
 
   it('takes in a Participant whose nickname is already spoken for', async () => {

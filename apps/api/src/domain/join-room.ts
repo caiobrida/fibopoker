@@ -31,8 +31,10 @@ export class JoinRoom {
       id: nanoid(PARTICIPANT_ID_LENGTH),
       nickname,
       tokenHash: hashedToken(token),
+      spectating: false,
       joinedAt: now,
       lastSeenAt: now,
+      leftAt: null,
     });
 
     return { token };

@@ -6,7 +6,7 @@ import { Button } from '../shared/ui/Button.tsx';
 import { Input } from '../shared/ui/Input.tsx';
 import { Heading, Lead } from '../shared/ui/Screen.tsx';
 import styles from './EntryPanel.module.css';
-import { alreadyAtTheTable } from './nicknames.ts';
+import { alreadyAtTheTable, sentencesIn } from './nicknames.ts';
 
 const NAMES_SPELLED_OUT = 3;
 
@@ -31,18 +31,14 @@ function whoIsAlreadyHere(participants: Participant[]): string {
   return `${joinedWithAnd(named)} ${named.length === 1 ? 'is' : 'are'} already at the table.`;
 }
 
-function sentencesIn(issues: { message: string }[]): string {
-  return issues.map(({ message }) => message).join(' ');
-}
-
 export function EntryPanel({
   participants,
   action,
-  leaving,
+  seated,
 }: {
   participants: Participant[];
   action: JoinRoomAction;
-  leaving: boolean;
+  seated: boolean;
 }) {
   const [typed, setTyped] = useState('');
   const proposed = nicknameSchema.safeParse(typed);
@@ -58,7 +54,7 @@ export function EntryPanel({
   }
 
   return (
-    <div className={styles.arrival} data-state={leaving ? 'leaving' : 'standing'}>
+    <div className={styles.arrival} data-state={seated ? 'leaving' : 'standing'}>
       <section className={styles.panel}>
         <header className={styles.welcome}>
           <Heading>Take a seat</Heading>
@@ -90,7 +86,7 @@ export function EntryPanel({
             variant="primary"
             size="large"
             type="submit"
-            disabled={!proposed.success || action.isJoining || action.joined}
+            disabled={!proposed.success || action.isJoining || seated}
           >
             {action.isJoining ? 'Joining…' : 'Join the Room'}
           </Button>

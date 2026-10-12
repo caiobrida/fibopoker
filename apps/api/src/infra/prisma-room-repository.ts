@@ -1,4 +1,4 @@
-import type { Participant } from '../domain/participant.js';
+import type { Departure, Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
 import { RoundAlreadyRevealedError, RoundStillOpenError } from '../domain/room-errors.js';
 import type { RoomRepository } from '../domain/room-repository.js';
@@ -44,12 +44,14 @@ export class PrismaRoomRepository implements RoomRepository {
       id: room.id,
       revision: room.revision,
       participants: room.participants.map(
-        ({ id: participantId, nickname, tokenHash, joinedAt, lastSeenAt }) => ({
+        ({ id: participantId, nickname, tokenHash, spectating, joinedAt, lastSeenAt, leftAt }) => ({
           id: participantId,
           nickname,
           tokenHash,
+          spectating,
           joinedAt,
           lastSeenAt,
+          leftAt,
         }),
       ),
       rounds: room.rounds.map(
@@ -79,6 +81,40 @@ export class PrismaRoomRepository implements RoomRepository {
     await this.prisma.participant.update({
       where: { id: participantId, roomId },
       data: { lastSeenAt: at },
+    });
+  }
+
+  rename(roomId: string, participantId: string, nickname: string): Promise<void> {
+    return this.bumpingRevision(roomId, (transaction) =>
+      transaction.participant.update({ where: { id: participantId, roomId }, data: { nickname } }),
+    );
+  }
+
+  setSpectating(roomId: string, participantId: string, spectating: boolean): Promise<void> {
+    return this.bumpingRevision(roomId, (transaction) =>
+      transaction.participant.update({
+        where: { id: participantId, roomId },
+        data: { spectating },
+      }),
+    );
+  }
+
+  recordDeparture(roomId: string, departure: Departure): Promise<void> {
+    const { participantId, at, withdrawingFrom } = departure;
+
+    return this.bumpingRevision(roomId, async (transaction) => {
+      await transaction.participant.update({
+        where: { id: participantId, roomId },
+        data: { leftAt: at },
+      });
+
+      if (withdrawingFrom === null) {
+        return;
+      }
+
+      await transaction.estimate.deleteMany({
+        where: { roundId: withdrawingFrom, participantId, round: { roomId, revealedAt: null } },
+      });
     });
   }
 

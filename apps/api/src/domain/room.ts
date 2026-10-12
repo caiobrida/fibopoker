@@ -1,6 +1,6 @@
 import type { RevealedEstimate, RoomSnapshot } from '@fibopoker/shared';
 import type { Participant } from './participant.js';
-import { hashedToken } from './participant.js';
+import { hashedToken, hasNotLeft } from './participant.js';
 import {
   RoundAlreadyOpenError,
   RoundAlreadyRevealedError,
@@ -40,7 +40,7 @@ export function presentAt(room: Room, now: Date): Room {
   return {
     ...room,
     participants: room.participants.filter(
-      ({ lastSeenAt }) => lastSeenAt.getTime() >= windowOpened,
+      (participant) => hasNotLeft(participant) && participant.lastSeenAt.getTime() >= windowOpened,
     ),
   };
 }
@@ -53,6 +53,12 @@ export function noRoundOpenIn(room: Room): void {
   if (openRoundOf(room) !== null) {
     throw new RoundAlreadyOpenError();
   }
+}
+
+export function roundHoldingAnEstimateBy(room: Room, self: Participant): Round | null {
+  const open = openRoundOf(room);
+
+  return open !== null && estimateBy(open, self.id) !== null ? open : null;
 }
 
 export function currentRoundOf(room: Room): Round | null {
@@ -131,9 +137,10 @@ export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
   return {
     id: room.id,
     revision: room.revision,
-    participants: [...room.participants].sort(byArrival).map(({ id, nickname }) => ({
+    participants: [...room.participants].sort(byArrival).map(({ id, nickname, spectating }) => ({
       id,
       nickname,
+      spectating,
       hasVoted: voted.has(id),
     })),
     selfId: self === null ? null : self.id,
@@ -145,7 +152,11 @@ export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
 export function participantHolding(room: Room, token: string): Participant | null {
   const presented = hashedToken(token);
 
-  return room.participants.find(({ tokenHash }) => tokenHash === presented) ?? null;
+  return (
+    room.participants.find(
+      (participant) => participant.tokenHash === presented && hasNotLeft(participant),
+    ) ?? null
+  );
 }
 
 export function actingIn(room: Room, token: string | null): Participant {

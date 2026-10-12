@@ -14,11 +14,29 @@ function whatTheSlotHolds(seat: SeatedParticipant): string {
     return 'a-revealed-estimate';
   }
 
+  if (seat.spectating) {
+    return 'nothing-to-come';
+  }
+
   return seat.hasVoted ? 'an-estimate' : 'nothing';
 }
 
+function whatElseToSayAbout(seat: SeatedParticipant): string[] {
+  const asides = [];
+
+  if (seat.mine) {
+    asides.push('you');
+  }
+
+  if (seat.spectating) {
+    asides.push('spectating');
+  }
+
+  return asides;
+}
+
 function whoIsSittingThere(seat: SeatedParticipant): string {
-  const occupant = seat.mine ? `${seat.nickname}, you` : seat.nickname;
+  const occupant = [seat.nickname, ...whatElseToSayAbout(seat)].join(', ');
 
   if (seat.estimate !== null) {
     return `${occupant}, estimated ${seat.estimate}${STANDING_READS_AS[seat.standing]}`;
@@ -49,7 +67,11 @@ export function Seat({ seat }: { seat: SeatedParticipant }) {
         <span className={styles.nickname} title={seat.nickname}>
           {seat.nickname}
         </span>
-        {seat.mine ? <span className={styles.you}>you</span> : null}
+        {whatElseToSayAbout(seat).map((aside) => (
+          <span key={aside} className={styles.aside}>
+            {aside}
+          </span>
+        ))}
       </span>
     </li>
   );

@@ -1,4 +1,4 @@
-import type { Participant } from '../domain/participant.js';
+import type { Departure, Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
 import {
   RoomNotFoundError,
@@ -33,6 +33,13 @@ function copyOf(room: Room): Room {
     ...room,
     participants: room.participants.map((participant) => ({ ...participant })),
     rounds: room.rounds.map(copyOfRound),
+  };
+}
+
+function withoutEstimateBy(round: Round, participantId: string): Round {
+  return {
+    ...round,
+    estimates: round.estimates.filter((estimate) => estimate.participantId !== participantId),
   };
 }
 
@@ -79,6 +86,40 @@ export class InMemoryRoomRepository implements RoomRepository {
         participant.id === participantId ? { ...participant, lastSeenAt: at } : participant,
       ),
     });
+  }
+
+  async rename(roomId: string, participantId: string, nickname: string): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      participants: room.participants.map((participant) =>
+        participant.id === participantId ? { ...participant, nickname } : participant,
+      ),
+    }));
+  }
+
+  async setSpectating(roomId: string, participantId: string, spectating: boolean): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      participants: room.participants.map((participant) =>
+        participant.id === participantId ? { ...participant, spectating } : participant,
+      ),
+    }));
+  }
+
+  async recordDeparture(roomId: string, departure: Departure): Promise<void> {
+    const { participantId, at, withdrawingFrom } = departure;
+
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      participants: room.participants.map((participant) =>
+        participant.id === participantId ? { ...participant, leftAt: at } : participant,
+      ),
+      rounds: room.rounds.map((round) =>
+        round.id === withdrawingFrom && isOpen(round)
+          ? withoutEstimateBy(round, participantId)
+          : round,
+      ),
+    }));
   }
 
   async openRound(roomId: string, round: Round): Promise<void> {

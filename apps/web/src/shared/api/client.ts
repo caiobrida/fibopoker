@@ -83,6 +83,29 @@ export async function joinRoom(roomId: string, nickname: string): Promise<JoinRo
   return bodyOf(response, joinRoomResponseSchema);
 }
 
+export async function renameSelf(
+  roomId: string,
+  token: string | null,
+  nickname: string,
+): Promise<void> {
+  await sendJson(`/rooms/${roomId}/participants/me/nickname`, 'PUT', token, { nickname });
+}
+
+export async function setSpectating(
+  roomId: string,
+  token: string | null,
+  spectating: boolean,
+): Promise<void> {
+  await sendJson(`/rooms/${roomId}/participants/me/spectating`, 'PUT', token, { spectating });
+}
+
+export async function leaveRoom(roomId: string, token: string | null): Promise<void> {
+  await send(`/rooms/${roomId}/participants/me`, {
+    method: 'DELETE',
+    headers: authorization(token),
+  }).then(successful);
+}
+
 export async function fetchRoomSnapshot(
   roomId: string,
   token: string | null,

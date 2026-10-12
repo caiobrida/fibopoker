@@ -7,9 +7,10 @@ import { RevealedEstimates } from './RevealedEstimates.tsx';
 import styles from './RoundInTheMiddle.module.css';
 
 function howManyHaveVoted(participants: Participant[]): string {
-  const voted = participants.filter(({ hasVoted }) => hasVoted).length;
+  const voting = participants.filter(({ spectating }) => !spectating);
+  const voted = voting.filter(({ hasVoted }) => hasVoted).length;
 
-  return `${voted} of ${participants.length} voted`;
+  return `${voted} of ${voting.length} voted`;
 }
 
 function WhatIsBeingEstimated({ title }: { title: string | null }) {

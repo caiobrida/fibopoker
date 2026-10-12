@@ -56,6 +56,10 @@
   border-color: var(--state-voted-border);
 }
 
+.estimate[data-held='nothing-to-come'] {
+  border-color: transparent;
+}
+
 .estimate[data-held='a-revealed-estimate'] {
   background-color: var(--bg-recessed);
   border-style: solid;
@@ -91,10 +95,11 @@
   text-align: center;
 }
 
-.you {
+.aside {
   font-size: var(--text-sm);
   line-height: var(--leading-tight);
   color: var(--text-secondary);
+  text-align: center;
 }
 
 @keyframes arrive {

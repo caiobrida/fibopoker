@@ -11,8 +11,10 @@ import {
   EstimateOutsideTheDeckError,
   RoomNotFoundError,
   RoundNotFoundError,
+  SpectatorNeverEstimatesError,
   UnknownParticipantError,
 } from './room-errors.js';
+import { SetSpectating } from './set-spectating.js';
 
 const A_MONDAY_MORNING = new Date('2026-10-12T09:00:00.000Z');
 const LONGER_THAN_THE_ACTIVITY_WINDOW = 180_000;
@@ -119,6 +121,22 @@ describe('Casting an Estimate', () => {
 
     expect(theOpenRound(snapshot).selfEstimate).toBeNull();
     expect(snapshot.participants.some(({ hasVoted }) => hasVoted)).toBe(false);
+  });
+
+  it('refuses a Spectator, who is in the Room without estimating in it', async () => {
+    const rooms = new InMemoryRoomRepository();
+    const clock = new ManualClock(A_MONDAY_MORNING);
+    const { roomId, roundId, bob } = await aRoomBeingEstimated(rooms, clock);
+    await new SetSpectating(rooms).execute({ roomId, token: bob, spectating: true });
+
+    const cast = new CastEstimate(rooms, clock).execute({
+      roomId,
+      roundId,
+      token: bob,
+      value: '5',
+    });
+
+    await expect(cast).rejects.toThrow(SpectatorNeverEstimatesError);
   });
 
   it('refuses a Round the Room does not hold', async () => {

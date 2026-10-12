@@ -8,9 +8,13 @@ export {
   joinRoomResponseSchema,
   nicknameSchema,
   participantSchema,
+  renameRequestSchema,
+  setSpectatingRequestSchema,
   type JoinRoomRequest,
   type JoinRoomResponse,
   type Participant,
+  type RenameRequest,
+  type SetSpectatingRequest,
 } from './participant.js';
 export { ROOM_ID_LENGTH, roomSnapshotSchema, type RoomSnapshot } from './room.js';
 export {
