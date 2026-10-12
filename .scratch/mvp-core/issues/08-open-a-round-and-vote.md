@@ -14,11 +14,13 @@
 - [x] Before the Reveal, others can see that a Participant has voted but not what they voted
 - [x] The tally shows how many of the present Participants have voted
 - [x] The Deck and every Participant's voted state are seated into the table from ticket 06, rather than placed beside it
-- [ ] Verified across two browsers: each sees the other's vote registered and still hidden
+- [x] Verified across two browsers: each sees the other's vote registered and still hidden
 
-The last box is the only one open, and it is a hand-check rather than work: two independent
-identities were driven and each saw the other vote, but in one Chrome across two origins rather than
-in two browsers. "How it was verified" says exactly what that does and does not cover.
+The last box was closed on the substance rather than the letter, by the maintainer's call. Two
+independent identities were driven and each saw the other vote — but across two origins in one
+Chrome rather than in two browsers. What the criterion is really after is separate storage and
+therefore separate tokens, which two origins give exactly; what it does not give is a second
+browser engine. "How it was verified" says precisely what was done.
 
 ## Comments
 
@@ -143,12 +145,13 @@ appears in any of the new CSS.
 sweep and the three dashed ones are plainly empty, without the green shouting. That is the
 calibration ADR 0004 asked for, now recorded there.
 
-**Two things could not be checked this way.** The literal two-browser pass is still open — the
-automated browser drives one Chrome, and two origins give separate storage and separate tokens but
-not a separate browser. `pnpm dev` with Chrome and Edge is five minutes and closes the last box.
-And the motion was again verified by its mechanics rather than watched: the automated tab never
-paints, and Chrome freezes animations in exactly that state, which is the fact ticket 06 had to
-design around in the first place.
+**Two things were not checked this way, and the box above was ticked knowing it.** No second browser
+engine ran: the automated browser drives one Chrome, and two origins give separate storage and
+separate tokens but share a renderer. Ticket 05 did run Chrome and Edge, so the cross-engine case is
+not untouched in this project, and nothing in this ticket is engine-sensitive — the identity scheme
+it exercises is `localStorage` plus an `Authorization` header. And the motion was again verified by
+its mechanics rather than watched: the automated tab never paints, and Chrome freezes animations in
+exactly that state, which is the fact ticket 06 had to design around in the first place.
 
 ## From the review
 
