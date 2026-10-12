@@ -115,6 +115,15 @@ export async function castEstimate(
   await sendJson(`/rooms/${roomId}/rounds/${roundId}/estimate`, 'PUT', token, { value });
 }
 
+export async function setFinalEstimate(
+  roomId: string,
+  roundId: string,
+  token: string | null,
+  value: string,
+): Promise<void> {
+  await sendJson(`/rooms/${roomId}/rounds/${roundId}/final-estimate`, 'PUT', token, { value });
+}
+
 export async function revealRound(
   roomId: string,
   roundId: string,

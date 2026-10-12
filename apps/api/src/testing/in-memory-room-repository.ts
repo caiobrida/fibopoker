@@ -1,12 +1,24 @@
 import type { Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
-import { RoomNotFoundError, RoundAlreadyRevealedError } from '../domain/room-errors.js';
+import {
+  RoomNotFoundError,
+  RoundAlreadyRevealedError,
+  RoundStillOpenError,
+} from '../domain/room-errors.js';
 import type { RoomRepository } from '../domain/room-repository.js';
 import { isOpen, type Estimate, type Round } from '../domain/round.js';
 
 function stillOpen(round: Round): Round {
   if (!isOpen(round)) {
     throw new RoundAlreadyRevealedError();
+  }
+
+  return round;
+}
+
+function alreadyRevealed(round: Round): Round {
+  if (isOpen(round)) {
+    throw new RoundStillOpenError();
   }
 
   return round;
@@ -92,6 +104,15 @@ export class InMemoryRoomRepository implements RoomRepository {
       ...room,
       rounds: room.rounds.map((round) =>
         round.id === roundId ? { ...stillOpen(round), revealedAt: at } : round,
+      ),
+    }));
+  }
+
+  async setFinalEstimate(roomId: string, roundId: string, value: string): Promise<void> {
+    this.bumpingRevision(roomId, (room) => ({
+      ...room,
+      rounds: room.rounds.map((round) =>
+        round.id === roundId ? { ...alreadyRevealed(round), finalEstimate: value } : round,
       ),
     }));
   }

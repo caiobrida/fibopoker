@@ -26,6 +26,10 @@ export const castEstimateRequestSchema = z.object({
   value: estimateValueSchema,
 });
 
+export const setFinalEstimateRequestSchema = z.object({
+  value: estimateValueSchema,
+});
+
 export const openRoundResponseSchema = z.object({
   id: roundIdSchema,
 });
@@ -40,6 +44,8 @@ const identity = {
   title: z.string().min(1).max(ROUND_TITLE_MAX_LENGTH).nullable(),
 };
 
+const finalEstimate = estimateValueSchema.nullable();
+
 export const roundSchema = z.discriminatedUnion('state', [
   z.object({
     ...identity,
@@ -50,10 +56,15 @@ export const roundSchema = z.discriminatedUnion('state', [
     ...identity,
     state: z.literal('revealed'),
     estimates: z.array(revealedEstimateSchema),
+    finalEstimate,
   }),
 ]);
 
+export const finishedRoundSchema = z.object({ ...identity, finalEstimate });
+
 export type Round = z.infer<typeof roundSchema>;
+
+export type FinishedRound = z.infer<typeof finishedRoundSchema>;
 
 export type RevealedEstimate = z.infer<typeof revealedEstimateSchema>;
 
@@ -62,3 +73,5 @@ export type OpenRoundRequest = z.infer<typeof openRoundRequestSchema>;
 export type OpenRoundResponse = z.infer<typeof openRoundResponseSchema>;
 
 export type CastEstimateRequest = z.infer<typeof castEstimateRequestSchema>;
+
+export type SetFinalEstimateRequest = z.infer<typeof setFinalEstimateRequestSchema>;

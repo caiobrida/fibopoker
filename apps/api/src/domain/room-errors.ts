@@ -47,3 +47,13 @@ export class RoundAlreadyRevealedError extends DomainError {
     super('This Round is revealed, and a revealed Round never changes');
   }
 }
+
+export class RoundStillOpenError extends DomainError {
+  readonly code = 'round_still_open';
+
+  constructor() {
+    super(
+      'This Round is still open, and a Final Estimate comes out of the discussion a Reveal starts',
+    );
+  }
+}

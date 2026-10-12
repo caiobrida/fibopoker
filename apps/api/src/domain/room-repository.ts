@@ -10,6 +10,7 @@ export interface RoomRepository {
   openRound(roomId: string, round: Round): Promise<void>;
   castEstimate(roomId: string, roundId: string, estimate: Estimate): Promise<void>;
   revealRound(roomId: string, roundId: string, at: Date): Promise<void>;
+  setFinalEstimate(roomId: string, roundId: string, value: string): Promise<void>;
 }
 
 export const ROOM_REPOSITORY = Symbol('RoomRepository');

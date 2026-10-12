@@ -38,6 +38,7 @@ export class OpenRound {
       title,
       openedAt: this.clock.now(),
       revealedAt: null,
+      finalEstimate: null,
       estimates: [],
     };
 

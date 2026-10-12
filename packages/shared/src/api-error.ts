@@ -6,6 +6,7 @@ export const API_ERROR_CODES = [
   'round_not_found',
   'round_already_open',
   'round_already_revealed',
+  'round_still_open',
   'invalid_estimate',
   'invalid_request',
 ] as const;

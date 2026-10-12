@@ -4,6 +4,7 @@ import { hashedToken } from './participant.js';
 import {
   RoundAlreadyRevealedError,
   RoundNotFoundError,
+  RoundStillOpenError,
   UnknownParticipantError,
 } from './room-errors.js';
 import { estimateBy, isOpen, type Round } from './round.js';
@@ -51,15 +52,31 @@ export function currentRoundOf(room: Room): Round | null {
   return room.rounds.at(-1) ?? null;
 }
 
-export function openRoundIn(room: Room, roundId: string): Round {
+function roundIn(room: Room, roundId: string): Round {
   const round = room.rounds.find(({ id }) => id === roundId);
 
   if (round === undefined) {
     throw new RoundNotFoundError(roundId);
   }
 
+  return round;
+}
+
+export function openRoundIn(room: Room, roundId: string): Round {
+  const round = roundIn(room, roundId);
+
   if (!isOpen(round)) {
     throw new RoundAlreadyRevealedError();
+  }
+
+  return round;
+}
+
+export function revealedRoundIn(room: Room, roundId: string): Round {
+  const round = roundIn(room, roundId);
+
+  if (isOpen(round)) {
+    throw new RoundStillOpenError();
   }
 
   return round;
@@ -83,6 +100,7 @@ function roundOf(round: Round, self: Participant | null): RoomSnapshot['round'] 
       estimates: round.estimates
         .map(({ participantId, value }) => ({ participantId, value }))
         .sort(byParticipant),
+      finalEstimate: round.finalEstimate,
     };
   }
 
@@ -91,6 +109,12 @@ function roundOf(round: Round, self: Participant | null): RoomSnapshot['round'] 
     state: 'open',
     selfEstimate: self === null ? null : (estimateBy(round, self.id)?.value ?? null),
   };
+}
+
+function finishedRoundsOf(room: Room): RoomSnapshot['history'] {
+  return room.rounds
+    .slice(0, -1)
+    .map(({ id, title, finalEstimate }) => ({ id, title, finalEstimate }));
 }
 
 export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
@@ -107,6 +131,7 @@ export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
     })),
     selfId: self === null ? null : self.id,
     round: round === null ? null : roundOf(round, self),
+    history: finishedRoundsOf(room),
   };
 }
 

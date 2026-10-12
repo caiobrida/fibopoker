@@ -9,6 +9,7 @@ export type Round = {
   title: string | null;
   openedAt: Date;
   revealedAt: Date | null;
+  finalEstimate: string | null;
   estimates: Estimate[];
 };
 

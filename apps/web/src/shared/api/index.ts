@@ -5,3 +5,4 @@ export { useJoinRoom, type JoinRoomAction } from './use-join-room.ts';
 export { useOpenRound, type OpenRoundAction } from './use-open-round.ts';
 export { useRevealRound, type RevealRoundAction } from './use-reveal-round.ts';
 export { useRoomState, type RoomState } from './use-room-state.ts';
+export { useSetFinalEstimate, type SetFinalEstimateAction } from './use-set-final-estimate.ts';

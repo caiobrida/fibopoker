@@ -7,12 +7,18 @@ import {
   useOpenRound,
   useRevealRound,
   useRoomState,
+  useSetFinalEstimate,
+  type CastEstimateAction,
+  type OpenRoundAction,
+  type SetFinalEstimateAction,
 } from '../shared/api/index.ts';
 import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
+import { AfterTheReveal } from './AfterTheReveal.tsx';
 import { Deck } from './Deck.tsx';
 import { EntryPanel } from './EntryPanel.tsx';
+import { FinishedRounds } from './FinishedRounds.tsx';
 import { sharedWithSomebodyElse } from './nicknames.ts';
 import { roomUrl } from './room-path.ts';
 import styles from './RoomScreen.module.css';
@@ -92,6 +98,40 @@ function RoomBanner({ participants, self }: { participants: Participant[]; self:
   );
 }
 
+function TheHand({
+  round,
+  estimating,
+  settling,
+  opening,
+  seated,
+}: {
+  round: RoomSnapshot['round'];
+  estimating: CastEstimateAction;
+  settling: SetFinalEstimateAction;
+  opening: OpenRoundAction;
+  seated: boolean;
+}) {
+  if (round?.state === 'open') {
+    return (
+      <Deck
+        label="The Deck"
+        chosen={round.selfEstimate}
+        choosing={estimating.choosing}
+        disabled={!seated}
+        onChoose={estimating.cast}
+      />
+    );
+  }
+
+  if (round?.state !== 'revealed' || !seated) {
+    return null;
+  }
+
+  return (
+    <AfterTheReveal finalEstimate={round.finalEstimate} settling={settling} opening={opening} />
+  );
+}
+
 function Room({ roomId }: { roomId: string }) {
   const state = useRoomState(roomId);
   const arrival = useArrival(state.status);
@@ -140,6 +180,7 @@ function TheRoom({
   const openRound = useOpenRound(room.id);
   const castEstimate = useCastEstimate(room.id, round === null ? null : round.id);
   const revealRound = useRevealRound(room.id, round === null ? null : round.id);
+  const setFinalEstimate = useSetFinalEstimate(room.id, round === null ? null : round.id);
   const others =
     self === null ? room.participants : room.participants.filter(({ id }) => id !== self.id);
 
@@ -163,14 +204,13 @@ function TheRoom({
           />
         }
         hand={
-          round?.state === 'open' ? (
-            <Deck
-              chosen={round.selfEstimate}
-              choosing={castEstimate.choosing}
-              disabled={self === null}
-              onChoose={castEstimate.cast}
-            />
-          ) : null
+          <TheHand
+            round={round}
+            estimating={castEstimate}
+            settling={setFinalEstimate}
+            opening={openRound}
+            seated={self !== null}
+          />
         }
       />
       {castEstimate.failure === null ? null : (
@@ -179,6 +219,7 @@ function TheRoom({
       {round?.state === 'open' && revealRound.failure !== null ? (
         <Alert>The Round would not reveal: {revealRound.failure}</Alert>
       ) : null}
+      <FinishedRounds rounds={room.history} />
       {arrival === 'seated' ? <ShareBlock link={roomUrl(room.id)} /> : null}
     </Screen>
   );
