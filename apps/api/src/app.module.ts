@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { CastEstimate } from './domain/cast-estimate.js';
 import { CLOCK, type Clock } from './domain/clock.js';
 import { CreateRoom } from './domain/create-room.js';
 import { GetRoomSnapshot } from './domain/get-room-snapshot.js';
 import { JoinRoom } from './domain/join-room.js';
+import { OpenRound } from './domain/open-round.js';
 import { ROOM_REPOSITORY, type RoomRepository } from './domain/room-repository.js';
 import { RoomsController } from './http/rooms.controller.js';
 import { PrismaRoomRepository } from './infra/prisma-room-repository.js';
@@ -33,6 +35,16 @@ import { SystemClock } from './infra/system-clock.js';
     {
       provide: GetRoomSnapshot,
       useFactory: (rooms: RoomRepository, clock: Clock) => new GetRoomSnapshot(rooms, clock),
+      inject: [ROOM_REPOSITORY, CLOCK],
+    },
+    {
+      provide: OpenRound,
+      useFactory: (rooms: RoomRepository, clock: Clock) => new OpenRound(rooms, clock),
+      inject: [ROOM_REPOSITORY, CLOCK],
+    },
+    {
+      provide: CastEstimate,
+      useFactory: (rooms: RoomRepository, clock: Clock) => new CastEstimate(rooms, clock),
       inject: [ROOM_REPOSITORY, CLOCK],
     },
   ],

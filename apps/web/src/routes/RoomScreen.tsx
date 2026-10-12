@@ -1,13 +1,21 @@
 import type { Participant } from '@fibopoker/shared';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { useJoinRoom, useRoomState } from '../shared/api/index.ts';
+import {
+  useCastEstimate,
+  useJoinRoom,
+  useOpenRound,
+  useRoomState,
+  type RoomState,
+} from '../shared/api/index.ts';
 import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
+import { Deck } from './Deck.tsx';
 import { EntryPanel } from './EntryPanel.tsx';
 import { sharedWithSomebodyElse } from './nicknames.ts';
 import { roomUrl } from './room-path.ts';
+import { Round } from './Round.tsx';
 import styles from './RoomScreen.module.css';
 import { RoomTable } from './RoomTable.tsx';
 import { useArrival } from './use-arrival.ts';
@@ -15,6 +23,14 @@ import { useArrival } from './use-arrival.ts';
 type CopyOutcome = 'untouched' | 'copied' | 'blocked';
 
 const COPY_FEEDBACK_MS = 2000;
+
+function roundBeingEstimated(state: RoomState): string | null {
+  if (state.status !== 'present' && state.status !== 'unidentified') {
+    return null;
+  }
+
+  return state.room.round === null ? null : state.room.round.id;
+}
 
 export function RoomScreen() {
   const { roomId } = useParams();
@@ -28,15 +44,6 @@ function NoSuchRoom() {
       <Heading>No such Room</Heading>
       <Lead>This link does not lead to a Room. Ask whoever shared it for the current one.</Lead>
     </Screen>
-  );
-}
-
-function NoRoundYet() {
-  return (
-    <>
-      <p className={styles.awaiting}>No Round is open</p>
-      <Note>Somebody titles the first task when the team is ready to estimate it.</Note>
-    </>
   );
 }
 
@@ -96,6 +103,8 @@ function RoomBanner({ participants, self }: { participants: Participant[]; self:
 function Room({ roomId }: { roomId: string }) {
   const state = useRoomState(roomId);
   const joinRoom = useJoinRoom(roomId);
+  const openRound = useOpenRound(roomId);
+  const castEstimate = useCastEstimate(roomId, roundBeingEstimated(state));
   const arrival = useArrival(state.status);
 
   if (state.status === 'resolving') {
@@ -131,9 +140,28 @@ function Room({ roomId }: { roomId: string }) {
       ) : (
         <EntryPanel participants={others} action={joinRoom} leaving={self !== null} />
       )}
-      <RoomTable participants={room.participants} selfId={self === null ? null : self.id}>
-        <NoRoundYet />
-      </RoomTable>
+      <RoomTable
+        participants={room.participants}
+        selfId={self === null ? null : self.id}
+        middle={
+          <Round
+            round={room.round}
+            participants={room.participants}
+            opening={self === null ? null : openRound}
+          />
+        }
+        hand={
+          <Deck
+            chosen={room.round === null ? null : room.round.selfEstimate}
+            choosing={castEstimate.choosing}
+            disabled={self === null || room.round === null}
+            onChoose={castEstimate.cast}
+          />
+        }
+      />
+      {castEstimate.failure === null ? null : (
+        <Alert>Your Estimate did not reach the Room: {castEstimate.failure}</Alert>
+      )}
       {arrival === 'seated' ? <ShareBlock link={roomUrl(room.id)} /> : null}
     </Screen>
   );

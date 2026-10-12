@@ -1,6 +1,7 @@
 import type { RoomSnapshot } from '@fibopoker/shared';
 import type { Participant } from './participant.js';
 import { hashedToken } from './participant.js';
+import { estimateBy, isOpen, type Round } from './round.js';
 
 export const INITIAL_REVISION = 1;
 
@@ -10,6 +11,7 @@ export type Room = {
   id: string;
   revision: number;
   participants: Participant[];
+  rounds: Round[];
 };
 
 function byArrival(one: Participant, other: Participant): number {
@@ -36,14 +38,36 @@ export function presentAt(room: Room, now: Date): Room {
   };
 }
 
+export function openRoundOf(room: Room): Round | null {
+  return room.rounds.find(isOpen) ?? null;
+}
+
+export function roundIn(room: Room, roundId: string): Round | null {
+  return room.rounds.find(({ id }) => id === roundId) ?? null;
+}
+
+function roundOf(round: Round, self: Participant | null): RoomSnapshot['round'] {
+  return {
+    id: round.id,
+    title: round.title,
+    selfEstimate: self === null ? null : (estimateBy(round, self.id)?.value ?? null),
+  };
+}
+
 export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
+  const round = openRoundOf(room);
+  const voted = new Set(round?.estimates.map(({ participantId }) => participantId) ?? []);
+
   return {
     id: room.id,
     revision: room.revision,
-    participants: [...room.participants]
-      .sort(byArrival)
-      .map(({ id, nickname }) => ({ id, nickname })),
+    participants: [...room.participants].sort(byArrival).map(({ id, nickname }) => ({
+      id,
+      nickname,
+      hasVoted: voted.has(id),
+    })),
     selfId: self === null ? null : self.id,
+    round: round === null ? null : roundOf(round, self),
   };
 }
 

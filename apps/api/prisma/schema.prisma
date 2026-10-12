@@ -12,6 +12,7 @@ model Room {
   revision Int
 
   participants Participant[]
+  rounds       Round[]
 
   @@map("rooms")
 }
@@ -24,8 +25,36 @@ model Participant {
   joinedAt   DateTime @map("joined_at") @db.Timestamptz(3)
   lastSeenAt DateTime @map("last_seen_at") @db.Timestamptz(3)
 
-  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room      Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  estimates Estimate[]
 
   @@unique([roomId, tokenHash])
   @@map("participants")
+}
+
+model Round {
+  id         String    @id
+  roomId     String    @map("room_id")
+  title      String?
+  openedAt   DateTime  @map("opened_at") @db.Timestamptz(3)
+  revealedAt DateTime? @map("revealed_at") @db.Timestamptz(3)
+
+  room      Room       @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  estimates Estimate[]
+
+  @@index([roomId])
+  @@map("rounds")
+}
+
+model Estimate {
+  roundId       String   @map("round_id")
+  participantId String   @map("participant_id")
+  value         String
+  castAt        DateTime @map("cast_at") @db.Timestamptz(3)
+
+  round       Round       @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@id([roundId, participantId])
+  @@map("estimates")
 }

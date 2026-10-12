@@ -21,11 +21,13 @@ function howManyAreHere(count: number): string {
 export function RoomTable({
   participants,
   selfId,
-  children,
+  middle,
+  hand,
 }: {
   participants: Participant[];
   selfId: string | null;
-  children: ReactNode;
+  middle: ReactNode;
+  hand: ReactNode;
 }) {
   const seats = useSeating(participants, selfId);
 
@@ -33,7 +35,7 @@ export function RoomTable({
     <section className={styles.room}>
       <div className={styles.clearance}>
         <div className={styles.table} style={proportions}>
-          <div className={styles.middle}>{children}</div>
+          <div className={styles.middle}>{middle}</div>
           <ul className={styles.seats}>
             {seats.map((seat) => (
               <Seat key={seat.id} seat={seat} />
@@ -41,6 +43,7 @@ export function RoomTable({
           </ul>
         </div>
       </div>
+      {hand}
       <Note>{howManyAreHere(participants.length)}</Note>
     </section>
   );

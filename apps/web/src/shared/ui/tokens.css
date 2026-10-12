@@ -17,6 +17,9 @@
   --action-primary-surface-hover: #ffffff;
   --action-primary-text: #171717;
 
+  --state-voted-surface: #2b4034;
+  --state-voted-border: #5c8f70;
+
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', Menlo, monospace;
 
@@ -68,6 +71,8 @@
   --seat-height: 8rem;
   --estimate-width: 2rem;
   --estimate-height: 2.75rem;
+  --card-width: 3.25rem;
+  --card-height: 4.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

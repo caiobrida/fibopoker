@@ -7,6 +7,7 @@ export type SeatedParticipant = {
   id: string;
   nickname: string;
   mine: boolean;
+  hasVoted: boolean;
   position: SeatPosition;
   state: 'seated' | 'vacating';
 };
@@ -16,6 +17,7 @@ function seatedAround(participants: Participant[], selfId: string | null): Seate
     id: occupant.id,
     nickname: occupant.nickname,
     mine: occupant.id === selfId,
+    hasVoted: occupant.hasVoted,
     position,
     state: 'seated',
   }));

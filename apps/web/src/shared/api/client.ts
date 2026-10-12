@@ -1,8 +1,10 @@
 import {
   apiErrorSchema,
   joinRoomResponseSchema,
+  openRoundResponseSchema,
   roomSnapshotSchema,
   type JoinRoomResponse,
+  type OpenRoundResponse,
   type RoomSnapshot,
 } from '@fibopoker/shared';
 import type { ZodType } from 'zod';
@@ -13,6 +15,10 @@ const UNREACHABLE = 'The API could not be reached.';
 const UNINTELLIGIBLE = 'The API answered with something this app does not understand.';
 
 export class StaleIdentityError extends Error {}
+
+function authorization(token: string | null): HeadersInit {
+  return token === null ? {} : { Authorization: `Bearer ${token}` };
+}
 
 async function send(path: string, init?: RequestInit): Promise<Response> {
   try {
@@ -72,9 +78,7 @@ export async function fetchRoomSnapshot(
   roomId: string,
   token: string | null,
 ): Promise<RoomSnapshot | null> {
-  const response = await send(`/rooms/${roomId}`, {
-    headers: token === null ? undefined : { Authorization: `Bearer ${token}` },
-  });
+  const response = await send(`/rooms/${roomId}`, { headers: authorization(token) });
 
   if (response.status === 404) {
     return null;
@@ -85,4 +89,39 @@ export async function fetchRoomSnapshot(
   }
 
   return bodyOf(response, roomSnapshotSchema);
+}
+
+export async function openRound(
+  roomId: string,
+  token: string | null,
+  title: string | null,
+): Promise<OpenRoundResponse> {
+  const response = await send(`/rooms/${roomId}/rounds`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authorization(token) },
+    body: JSON.stringify({ title }),
+  });
+
+  if (!response.ok) {
+    throw await failureFrom(response);
+  }
+
+  return bodyOf(response, openRoundResponseSchema);
+}
+
+export async function castEstimate(
+  roomId: string,
+  roundId: string,
+  token: string | null,
+  value: string,
+): Promise<void> {
+  const response = await send(`/rooms/${roomId}/rounds/${roundId}/estimate`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authorization(token) },
+    body: JSON.stringify({ value }),
+  });
+
+  if (!response.ok) {
+    throw await failureFrom(response);
+  }
 }

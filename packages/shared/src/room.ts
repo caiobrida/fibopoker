@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { nanoIdSchema } from './nano-id.js';
 import { participantIdSchema, participantSchema } from './participant.js';
+import { openRoundSchema } from './round.js';
 
 export const ROOM_ID_LENGTH = 12;
 
@@ -11,6 +12,7 @@ export const roomSnapshotSchema = z.object({
   revision: z.number().int().positive(),
   participants: z.array(participantSchema),
   selfId: participantIdSchema.nullable(),
+  round: openRoundSchema.nullable(),
 });
 
 export type RoomSnapshot = z.infer<typeof roomSnapshotSchema>;
