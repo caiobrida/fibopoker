@@ -21,8 +21,15 @@ out of the snapshot it already has and posts it to `POST /rounds`. That was reje
 reason: a client-supplied title can disagree with the Round it claims to re-estimate. The third
 criterion asks the history to show _the task_ more than once, and that identity only holds if the
 two Rounds get their title from the same place. `ReVote` reads it off the Round being re-voted, so
-"carrying the same title" is a guarantee rather than a convention. It also puts the behaviour at
-the one seam ADR 0006 tests at, which the cheap version would not have.
+"carrying the same title" is a guarantee rather than a convention.
+
+`spec.md` settles it either way, in the testing section rather than the design one. Its list of
+invariants that get tested includes "a re-vote opens a new Round carrying the title, leaving the
+previous Round and its Estimates untouched", and the seam is "exactly one: the use cases", driven
+directly with no HTTP. A re-vote assembled in the browser is not reachable from that seam at all,
+so the invariant could not have been covered. Worth saying because `spec.md`'s **API surface**
+paragraph lists ten operations and re-vote is not among them — that prose predates the testing
+section being this specific, and the eleventh endpoint is what the tested invariant costs.
 
 **`POST /rooms/:roomId/rounds/:roundId/re-vote` takes no body at all** — there is nothing for the
 caller to supply and therefore nothing to validate, which is the ticket's "one action" in the
