@@ -2,6 +2,7 @@ import type { RevealedEstimate, RoomSnapshot } from '@fibopoker/shared';
 import type { Participant } from './participant.js';
 import { hashedToken } from './participant.js';
 import {
+  RoundAlreadyOpenError,
   RoundAlreadyRevealedError,
   RoundNotFoundError,
   RoundStillOpenError,
@@ -44,8 +45,14 @@ export function presentAt(room: Room, now: Date): Room {
   };
 }
 
-export function openRoundOf(room: Room): Round | null {
+function openRoundOf(room: Room): Round | null {
   return room.rounds.find(isOpen) ?? null;
+}
+
+export function noRoundOpenIn(room: Room): void {
+  if (openRoundOf(room) !== null) {
+    throw new RoundAlreadyOpenError();
+  }
 }
 
 export function currentRoundOf(room: Room): Round | null {

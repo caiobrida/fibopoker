@@ -5,6 +5,7 @@ import { CreateRoom } from './domain/create-room.js';
 import { GetRoomSnapshot } from './domain/get-room-snapshot.js';
 import { JoinRoom } from './domain/join-room.js';
 import { OpenRound } from './domain/open-round.js';
+import { ReVote } from './domain/re-vote.js';
 import { RevealRound } from './domain/reveal-round.js';
 import { ROOM_REPOSITORY, type RoomRepository } from './domain/room-repository.js';
 import { SetFinalEstimate } from './domain/set-final-estimate.js';
@@ -52,6 +53,11 @@ import { SystemClock } from './infra/system-clock.js';
     {
       provide: RevealRound,
       useFactory: (rooms: RoomRepository, clock: Clock) => new RevealRound(rooms, clock),
+      inject: [ROOM_REPOSITORY, CLOCK],
+    },
+    {
+      provide: ReVote,
+      useFactory: (rooms: RoomRepository, clock: Clock) => new ReVote(rooms, clock),
       inject: [ROOM_REPOSITORY, CLOCK],
     },
     {

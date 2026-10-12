@@ -27,6 +27,7 @@ import { CreateRoom } from '../domain/create-room.js';
 import { GetRoomSnapshot } from '../domain/get-room-snapshot.js';
 import { JoinRoom } from '../domain/join-room.js';
 import { OpenRound } from '../domain/open-round.js';
+import { ReVote } from '../domain/re-vote.js';
 import { RevealRound } from '../domain/reveal-round.js';
 import { SetFinalEstimate } from '../domain/set-final-estimate.js';
 import { bearerToken } from './bearer-token.js';
@@ -41,6 +42,7 @@ export class RoomsController {
     private readonly openRound: OpenRound,
     private readonly castEstimate: CastEstimate,
     private readonly revealRound: RevealRound,
+    private readonly reVote: ReVote,
     private readonly setFinalEstimate: SetFinalEstimate,
   ) {}
 
@@ -82,6 +84,15 @@ export class RoomsController {
     @Headers('authorization') authorization: string | undefined,
   ): Promise<void> {
     return this.revealRound.execute({ roomId, roundId, token: bearerToken(authorization) });
+  }
+
+  @Post(':roomId/rounds/:roundId/re-vote')
+  again(
+    @Param('roomId') roomId: string,
+    @Param('roundId') roundId: string,
+    @Headers('authorization') authorization: string | undefined,
+  ): Promise<OpenRoundResponse> {
+    return this.reVote.execute({ roomId, roundId, token: bearerToken(authorization) });
   }
 
   @Put(':roomId/rounds/:roundId/estimate')

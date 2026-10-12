@@ -6,10 +6,12 @@ import {
   useJoinRoom,
   useOpenRound,
   useRevealRound,
+  useReVote,
   useRoomState,
   useSetFinalEstimate,
   type CastEstimateAction,
   type OpenRoundAction,
+  type ReVoteAction,
   type SetFinalEstimateAction,
 } from '../shared/api/index.ts';
 import { Alert } from '../shared/ui/Alert.tsx';
@@ -102,12 +104,14 @@ function TheHand({
   round,
   estimating,
   settling,
+  reVoting,
   opening,
   seated,
 }: {
   round: RoomSnapshot['round'];
   estimating: CastEstimateAction;
   settling: SetFinalEstimateAction;
+  reVoting: ReVoteAction;
   opening: OpenRoundAction;
   seated: boolean;
 }) {
@@ -128,7 +132,12 @@ function TheHand({
   }
 
   return (
-    <AfterTheReveal finalEstimate={round.finalEstimate} settling={settling} opening={opening} />
+    <AfterTheReveal
+      finalEstimate={round.finalEstimate}
+      settling={settling}
+      reVoting={reVoting}
+      opening={opening}
+    />
   );
 }
 
@@ -181,6 +190,7 @@ function TheRoom({
   const castEstimate = useCastEstimate(room.id, round === null ? null : round.id);
   const revealRound = useRevealRound(room.id, round === null ? null : round.id);
   const setFinalEstimate = useSetFinalEstimate(room.id, round === null ? null : round.id);
+  const reVote = useReVote(room.id, round === null ? null : round.id);
   const others =
     self === null ? room.participants : room.participants.filter(({ id }) => id !== self.id);
 
@@ -208,6 +218,7 @@ function TheRoom({
             round={round}
             estimating={castEstimate}
             settling={setFinalEstimate}
+            reVoting={reVote}
             opening={openRound}
             seated={self !== null}
           />

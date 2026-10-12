@@ -124,6 +124,19 @@ export async function setFinalEstimate(
   await sendJson(`/rooms/${roomId}/rounds/${roundId}/final-estimate`, 'PUT', token, { value });
 }
 
+export async function reVote(
+  roomId: string,
+  roundId: string,
+  token: string | null,
+): Promise<OpenRoundResponse> {
+  const response = await send(`/rooms/${roomId}/rounds/${roundId}/re-vote`, {
+    method: 'POST',
+    headers: authorization(token),
+  }).then(successful);
+
+  return bodyOf(response, openRoundResponseSchema);
+}
+
 export async function revealRound(
   roomId: string,
   roundId: string,
