@@ -1,7 +1,11 @@
-import type { RoomSnapshot } from '@fibopoker/shared';
+import type { RevealedEstimate, RoomSnapshot } from '@fibopoker/shared';
 import type { Participant } from './participant.js';
 import { hashedToken } from './participant.js';
-import { UnknownParticipantError } from './room-errors.js';
+import {
+  RoundAlreadyRevealedError,
+  RoundNotFoundError,
+  UnknownParticipantError,
+} from './room-errors.js';
 import { estimateBy, isOpen, type Round } from './round.js';
 
 export const INITIAL_REVISION = 1;
@@ -43,16 +47,54 @@ export function openRoundOf(room: Room): Round | null {
   return room.rounds.find(isOpen) ?? null;
 }
 
+export function currentRoundOf(room: Room): Round | null {
+  return room.rounds.at(-1) ?? null;
+}
+
+export function openRoundIn(room: Room, roundId: string): Round {
+  const round = room.rounds.find(({ id }) => id === roundId);
+
+  if (round === undefined) {
+    throw new RoundNotFoundError(roundId);
+  }
+
+  if (!isOpen(round)) {
+    throw new RoundAlreadyRevealedError();
+  }
+
+  return round;
+}
+
+function byParticipant(one: RevealedEstimate, other: RevealedEstimate): number {
+  if (one.participantId === other.participantId) {
+    return 0;
+  }
+
+  return one.participantId < other.participantId ? -1 : 1;
+}
+
 function roundOf(round: Round, self: Participant | null): RoomSnapshot['round'] {
+  const identity = { id: round.id, title: round.title };
+
+  if (!isOpen(round)) {
+    return {
+      ...identity,
+      state: 'revealed',
+      estimates: round.estimates
+        .map(({ participantId, value }) => ({ participantId, value }))
+        .sort(byParticipant),
+    };
+  }
+
   return {
-    id: round.id,
-    title: round.title,
+    ...identity,
+    state: 'open',
     selfEstimate: self === null ? null : (estimateBy(round, self.id)?.value ?? null),
   };
 }
 
 export function snapshotOf(room: Room, self: Participant | null): RoomSnapshot {
-  const round = openRoundOf(room);
+  const round = currentRoundOf(room);
   const voted = new Set(round?.estimates.map(({ participantId }) => participantId) ?? []);
 
   return {

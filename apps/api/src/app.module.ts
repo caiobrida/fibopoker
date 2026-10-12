@@ -5,6 +5,7 @@ import { CreateRoom } from './domain/create-room.js';
 import { GetRoomSnapshot } from './domain/get-room-snapshot.js';
 import { JoinRoom } from './domain/join-room.js';
 import { OpenRound } from './domain/open-round.js';
+import { RevealRound } from './domain/reveal-round.js';
 import { ROOM_REPOSITORY, type RoomRepository } from './domain/room-repository.js';
 import { RoomsController } from './http/rooms.controller.js';
 import { PrismaRoomRepository } from './infra/prisma-room-repository.js';
@@ -45,6 +46,11 @@ import { SystemClock } from './infra/system-clock.js';
     {
       provide: CastEstimate,
       useFactory: (rooms: RoomRepository, clock: Clock) => new CastEstimate(rooms, clock),
+      inject: [ROOM_REPOSITORY, CLOCK],
+    },
+    {
+      provide: RevealRound,
+      useFactory: (rooms: RoomRepository, clock: Clock) => new RevealRound(rooms, clock),
       inject: [ROOM_REPOSITORY, CLOCK],
     },
   ],

@@ -11,7 +11,7 @@ export class Cadence {
   private estimating = false;
 
   noticed(room: RoomSnapshot | null): void {
-    this.estimating = room !== null && room.round !== null;
+    this.estimating = room?.round?.state === 'open';
 
     const revision = room === null ? null : room.revision;
 

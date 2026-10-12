@@ -1,6 +1,7 @@
-import type { Participant } from '@fibopoker/shared';
+import type { Participant, RevealedEstimate } from '@fibopoker/shared';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motionDuration } from '../shared/ui/motion.ts';
+import { standingOfEachValue, type Standing } from './estimate-groups.ts';
 import { seatsAround, type SeatPosition } from './seating.ts';
 
 export type SeatedParticipant = {
@@ -8,26 +9,47 @@ export type SeatedParticipant = {
   nickname: string;
   mine: boolean;
   hasVoted: boolean;
+  estimate: string | null;
+  standing: Standing;
   position: SeatPosition;
   state: 'seated' | 'vacating';
 };
 
-function seatedAround(participants: Participant[], selfId: string | null): SeatedParticipant[] {
-  return seatsAround(participants).map(({ occupant, position }) => ({
-    id: occupant.id,
-    nickname: occupant.nickname,
-    mine: occupant.id === selfId,
-    hasVoted: occupant.hasVoted,
-    position,
-    state: 'seated',
-  }));
+function seatedAround(
+  participants: Participant[],
+  selfId: string | null,
+  revealed: RevealedEstimate[] | null,
+): SeatedParticipant[] {
+  const revealedTo = new Map(
+    (revealed ?? []).map(({ participantId, value }) => [participantId, value]),
+  );
+  const standings = standingOfEachValue(revealed ?? []);
+
+  return seatsAround(participants).map(({ occupant, position }) => {
+    const estimate = revealedTo.get(occupant.id) ?? null;
+
+    return {
+      id: occupant.id,
+      nickname: occupant.nickname,
+      mine: occupant.id === selfId,
+      hasVoted: occupant.hasVoted,
+      estimate,
+      standing: estimate === null ? 'neutral' : (standings.get(estimate) ?? 'neutral'),
+      position,
+      state: 'seated',
+    };
+  });
 }
 
 export function useSeating(
   participants: Participant[],
   selfId: string | null,
+  revealed: RevealedEstimate[] | null,
 ): SeatedParticipant[] {
-  const seated = useMemo(() => seatedAround(participants, selfId), [participants, selfId]);
+  const seated = useMemo(
+    () => seatedAround(participants, selfId, revealed),
+    [participants, selfId, revealed],
+  );
   const [vacating, setVacating] = useState<SeatedParticipant[]>([]);
   const previouslySeated = useRef(seated);
 

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { STANDING_READS_AS } from './estimate-groups.ts';
 import styles from './Seat.module.css';
 import type { SeatedParticipant } from './use-seating.ts';
 
@@ -8,8 +9,20 @@ function placementOf(seat: SeatedParticipant): Placement {
   return { '--seat-x': seat.position.x, '--seat-y': seat.position.y };
 }
 
+function whatTheSlotHolds(seat: SeatedParticipant): string {
+  if (seat.estimate !== null) {
+    return 'a-revealed-estimate';
+  }
+
+  return seat.hasVoted ? 'an-estimate' : 'nothing';
+}
+
 function whoIsSittingThere(seat: SeatedParticipant): string {
   const occupant = seat.mine ? `${seat.nickname}, you` : seat.nickname;
+
+  if (seat.estimate !== null) {
+    return `${occupant}, estimated ${seat.estimate}${STANDING_READS_AS[seat.standing]}`;
+  }
 
   return seat.hasVoted ? `${occupant}, has voted` : occupant;
 }
@@ -26,9 +39,12 @@ export function Seat({ seat }: { seat: SeatedParticipant }) {
     >
       <span
         className={styles.estimate}
-        data-held={seat.hasVoted ? 'an-estimate' : 'nothing'}
+        data-held={whatTheSlotHolds(seat)}
+        data-standing={seat.estimate === null ? undefined : seat.standing}
         aria-hidden
-      />
+      >
+        {seat.estimate}
+      </span>
       <span className={styles.occupant}>
         <span className={styles.nickname} title={seat.nickname}>
           {seat.nickname}

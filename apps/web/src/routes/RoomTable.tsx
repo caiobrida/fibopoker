@@ -1,4 +1,4 @@
-import type { Participant } from '@fibopoker/shared';
+import type { Participant, RevealedEstimate } from '@fibopoker/shared';
 import type { CSSProperties, ReactNode } from 'react';
 import { Note } from '../shared/ui/Screen.tsx';
 import styles from './RoomTable.module.css';
@@ -21,15 +21,17 @@ function howManyAreHere(count: number): string {
 export function RoomTable({
   participants,
   selfId,
+  revealed,
   middle,
   hand,
 }: {
   participants: Participant[];
   selfId: string | null;
+  revealed: RevealedEstimate[] | null;
   middle: ReactNode;
   hand: ReactNode;
 }) {
-  const seats = useSeating(participants, selfId);
+  const seats = useSeating(participants, selfId, revealed);
 
   return (
     <section className={styles.room}>

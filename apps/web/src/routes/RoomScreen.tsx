@@ -1,7 +1,13 @@
 import type { Participant, RoomSnapshot } from '@fibopoker/shared';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { useCastEstimate, useJoinRoom, useOpenRound, useRoomState } from '../shared/api/index.ts';
+import {
+  useCastEstimate,
+  useJoinRoom,
+  useOpenRound,
+  useRevealRound,
+  useRoomState,
+} from '../shared/api/index.ts';
 import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
@@ -129,9 +135,11 @@ function TheRoom({
   self: Participant | null;
   arrival: Arrival;
 }) {
+  const round = room.round;
   const joinRoom = useJoinRoom(room.id);
   const openRound = useOpenRound(room.id);
-  const castEstimate = useCastEstimate(room.id, room.round === null ? null : room.round.id);
+  const castEstimate = useCastEstimate(room.id, round === null ? null : round.id);
+  const revealRound = useRevealRound(room.id, round === null ? null : round.id);
   const others =
     self === null ? room.participants : room.participants.filter(({ id }) => id !== self.id);
 
@@ -145,25 +153,32 @@ function TheRoom({
       <RoomTable
         participants={room.participants}
         selfId={self === null ? null : self.id}
+        revealed={round?.state === 'revealed' ? round.estimates : null}
         middle={
           <RoundInTheMiddle
-            round={room.round}
+            round={round}
             participants={room.participants}
             opening={self === null ? null : openRound}
+            revealing={self === null ? null : revealRound}
           />
         }
         hand={
-          <Deck
-            chosen={room.round === null ? null : room.round.selfEstimate}
-            choosing={castEstimate.choosing}
-            disabled={self === null || room.round === null}
-            onChoose={castEstimate.cast}
-          />
+          round?.state === 'open' ? (
+            <Deck
+              chosen={round.selfEstimate}
+              choosing={castEstimate.choosing}
+              disabled={self === null}
+              onChoose={castEstimate.cast}
+            />
+          ) : null
         }
       />
       {castEstimate.failure === null ? null : (
         <Alert>Your Estimate did not reach the Room: {castEstimate.failure}</Alert>
       )}
+      {round?.state === 'open' && revealRound.failure !== null ? (
+        <Alert>The Round would not reveal: {revealRound.failure}</Alert>
+      ) : null}
       {arrival === 'seated' ? <ShareBlock link={roomUrl(room.id)} /> : null}
     </Screen>
   );

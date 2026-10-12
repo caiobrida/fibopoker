@@ -19,6 +19,8 @@
 
   --state-voted-surface: #2b4034;
   --state-voted-border: #5c8f70;
+  --state-divergent-surface: #50372b;
+  --state-divergent-border: #a67359;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', Menlo, monospace;

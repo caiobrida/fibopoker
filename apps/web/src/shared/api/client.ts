@@ -40,23 +40,25 @@ async function failureFrom(response: Response): Promise<Error> {
     : new Error(parsed.data.message);
 }
 
-async function sendJson(
-  path: string,
-  method: string,
-  token: string | null,
-  body: unknown,
-): Promise<Response> {
-  const response = await send(path, {
-    method,
-    headers: { 'Content-Type': 'application/json', ...authorization(token) },
-    body: JSON.stringify(body),
-  });
-
+async function successful(response: Response): Promise<Response> {
   if (!response.ok) {
     throw await failureFrom(response);
   }
 
   return response;
+}
+
+function sendJson(
+  path: string,
+  method: string,
+  token: string | null,
+  body: unknown,
+): Promise<Response> {
+  return send(path, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...authorization(token) },
+    body: JSON.stringify(body),
+  }).then(successful);
 }
 
 async function bodyOf<T>(response: Response, schema: ZodType<T>): Promise<T> {
@@ -70,11 +72,7 @@ async function bodyOf<T>(response: Response, schema: ZodType<T>): Promise<T> {
 }
 
 export async function createRoom(): Promise<RoomSnapshot> {
-  const response = await send('/rooms', { method: 'POST' });
-
-  if (!response.ok) {
-    throw await failureFrom(response);
-  }
+  const response = await send('/rooms', { method: 'POST' }).then(successful);
 
   return bodyOf(response, roomSnapshotSchema);
 }
@@ -95,11 +93,7 @@ export async function fetchRoomSnapshot(
     return null;
   }
 
-  if (!response.ok) {
-    throw await failureFrom(response);
-  }
-
-  return bodyOf(response, roomSnapshotSchema);
+  return bodyOf(await successful(response), roomSnapshotSchema);
 }
 
 export async function openRound(
@@ -119,4 +113,15 @@ export async function castEstimate(
   value: string,
 ): Promise<void> {
   await sendJson(`/rooms/${roomId}/rounds/${roundId}/estimate`, 'PUT', token, { value });
+}
+
+export async function revealRound(
+  roomId: string,
+  roundId: string,
+  token: string | null,
+): Promise<void> {
+  await send(`/rooms/${roomId}/rounds/${roundId}/reveal`, {
+    method: 'POST',
+    headers: authorization(token),
+  }).then(successful);
 }

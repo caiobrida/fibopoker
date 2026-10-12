@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { nanoIdSchema } from './nano-id.js';
+import { participantIdSchema } from './participant.js';
 
 export const ROUND_ID_LENGTH = 12;
 
@@ -29,13 +30,32 @@ export const openRoundResponseSchema = z.object({
   id: roundIdSchema,
 });
 
-export const roundSchema = z.object({
-  id: roundIdSchema,
-  title: z.string().min(1).max(ROUND_TITLE_MAX_LENGTH).nullable(),
-  selfEstimate: estimateValueSchema.nullable(),
+export const revealedEstimateSchema = z.object({
+  participantId: participantIdSchema,
+  value: estimateValueSchema,
 });
 
+const identity = {
+  id: roundIdSchema,
+  title: z.string().min(1).max(ROUND_TITLE_MAX_LENGTH).nullable(),
+};
+
+export const roundSchema = z.discriminatedUnion('state', [
+  z.object({
+    ...identity,
+    state: z.literal('open'),
+    selfEstimate: estimateValueSchema.nullable(),
+  }),
+  z.object({
+    ...identity,
+    state: z.literal('revealed'),
+    estimates: z.array(revealedEstimateSchema),
+  }),
+]);
+
 export type Round = z.infer<typeof roundSchema>;
+
+export type RevealedEstimate = z.infer<typeof revealedEstimateSchema>;
 
 export type OpenRoundRequest = z.infer<typeof openRoundRequestSchema>;
 

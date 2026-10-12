@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryRoomRepository } from '../testing/in-memory-room-repository.js';
 import { ManualClock } from '../testing/manual-clock.js';
+import { theOpenRound } from '../testing/snapshot-rounds.js';
 import { CreateRoom } from './create-room.js';
 import { GetRoomSnapshot } from './get-room-snapshot.js';
 import { JoinRoom } from './join-room.js';
@@ -69,7 +70,7 @@ describe('Opening a Round', () => {
     const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token });
 
     expect(snapshot.participants.map(({ hasVoted }) => hasVoted)).toEqual([false]);
-    expect(snapshot.round?.selfEstimate).toBeNull();
+    expect(theOpenRound(snapshot).selfEstimate).toBeNull();
   });
 
   it('leaves a Room nobody has opened a Round in with no Round at all', async () => {

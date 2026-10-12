@@ -9,12 +9,23 @@ import {
   type OpenRoundResponse,
   type RoomSnapshot,
 } from '@fibopoker/shared';
-import { Body, Controller, Get, Headers, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CastEstimate } from '../domain/cast-estimate.js';
 import { CreateRoom } from '../domain/create-room.js';
 import { GetRoomSnapshot } from '../domain/get-room-snapshot.js';
 import { JoinRoom } from '../domain/join-room.js';
 import { OpenRound } from '../domain/open-round.js';
+import { RevealRound } from '../domain/reveal-round.js';
 import { bearerToken } from './bearer-token.js';
 import { ZodValidationPipe } from './zod-validation.pipe.js';
 
@@ -26,6 +37,7 @@ export class RoomsController {
     private readonly getRoomSnapshot: GetRoomSnapshot,
     private readonly openRound: OpenRound,
     private readonly castEstimate: CastEstimate,
+    private readonly revealRound: RevealRound,
   ) {}
 
   @Post()
@@ -56,6 +68,16 @@ export class RoomsController {
     @Body(new ZodValidationPipe(openRoundRequestSchema)) { title }: OpenRoundRequest,
   ): Promise<OpenRoundResponse> {
     return this.openRound.execute({ roomId, token: bearerToken(authorization), title });
+  }
+
+  @Post(':roomId/rounds/:roundId/reveal')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  reveal(
+    @Param('roomId') roomId: string,
+    @Param('roundId') roundId: string,
+    @Headers('authorization') authorization: string | undefined,
+  ): Promise<void> {
+    return this.revealRound.execute({ roomId, roundId, token: bearerToken(authorization) });
   }
 
   @Put(':roomId/rounds/:roundId/estimate')
