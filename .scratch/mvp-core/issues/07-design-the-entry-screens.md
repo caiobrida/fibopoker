@@ -22,7 +22,7 @@ The deal the product offers is unusually good: no account, no sign-up, no privat
 
 This ticket is mostly taste, and the criteria above are deliberately about composition and hierarchy rather than about a particular look — there is no mockup, and inventing one in prose would be worse than deciding at the keyboard against the real screen.
 
-Two constraints are not taste, though, and they bound it. ADR 0004 fixes the palette: near-monochrome low-saturation greys with one inverted near-white primary action, dark only. And whatever lands here has to survive ticket 14's phone-width pass, so a composition that only works wide is not finished.
+Two constraints are not taste, though, and they bound it. ADR 0004 fixes the palette: near-monochrome low-saturation greys with one inverted near-white primary action, dark only. And whatever lands here has to survive ticket 14's layout pass, so a composition that only works wide is not finished.
 
 What **not** to do: add a logo, a brand colour, an illustration library or a font that is not already in the token layer. The palette is deliberately quiet, and the way to make these screens good is composition, type scale, spacing and motion — not decoration bolted onto a design system that has no room for it.
 
@@ -102,9 +102,9 @@ Both axes ran against `main...HEAD`. The standards axis found one hard violation
 
 "Only from five does it become `Ana, Bruno, Carla and 5 others`" — with `NAMES_SPELLED_OUT = 3`, five Participants read "and 2 others". The rule and the code are right, the example is not.
 
-### The laptop fold does not belong to ticket 14
+### The laptop fold did not belong to ticket 14 as it stood
 
-The note above parks it there. That is wrong and should not be relied on: every one of ticket 14's criteria is phone-width, and none of them picks up a composition that clips on a laptop. This ticket also made the case worse than it found it, since the panel is taller than the `aside` it replaced. It needs a decision of its own rather than a ticket that will not look for it.
+The note above parks it there, and at the time that was wrong: every one of ticket 14's criteria was phone-width, so none of them would have picked up a composition that clips on a laptop. This ticket also made the case worse than it found it, since the panel is taller than the `aside` it replaced. Ticket 14 has since been widened to cover it — see the closing section.
 
 ## What the review changed
 
@@ -138,6 +138,8 @@ Smaller: `.consequence` is `.reassurance`, `.verdict` is `.alerts`, `listing()` 
 
 **The example that was wrong is corrected in place:** with `NAMES_SPELLED_OUT = 3`, five Participants read "Ana, Bruno and 2 others"; "5 others" needs eight. The rule and the code were right, only the sentence describing them was not.
 
-### Still open, and not ticket 14's
+### Where the laptop fold went
 
-The laptop fold. The note above parks it on ticket 14 and that is wrong: every one of ticket 14's criteria is phone-width, so nobody working that ticket will go looking for a composition that clips on a laptop. This ticket also made the case worse than it found it, since the panel is taller than the `aside` it replaced. It wants a decision of its own rather than a ticket that will not look for it, and that decision is the maintainer's.
+It is ticket 14's, and now actually is. The review was right that it was not: every one of that ticket's criteria was phone-width, so nobody working it would have gone looking for a composition that clips on a laptop, and this ticket made the case worse than it found it since the panel is taller than the `aside` it replaced.
+
+The fix was to widen the ticket rather than add one. **14 — Mobile layout pass** is now **14 — Layout pass**, covering viewport height as well as width, and carrying the measurements from here and from ticket 06 so the next person does not have to find them again: the table needs 683px of vertical space, the panel is 401px, and a 945px laptop window fits one or the other. A separate ticket would have had to land between 14 and 15, since ticket 15 is blocked on the layout being settled — which is another way of saying it was already 14. Both halves are also the same defect, a fixed seat size inside a container that shrank, so one figure-scaling fix answers the phone and the laptop at once and leaves no breakpoint between them to fall through.
