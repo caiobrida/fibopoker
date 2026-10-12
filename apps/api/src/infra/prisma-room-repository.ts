@@ -1,8 +1,24 @@
 import type { Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
+import { RoundAlreadyRevealedError } from '../domain/room-errors.js';
 import type { RoomRepository } from '../domain/room-repository.js';
 import type { Estimate, Round } from '../domain/round.js';
 import type { Prisma, PrismaClient } from '../generated/prisma/client.js';
+
+async function stillOpen(
+  transaction: Prisma.TransactionClient,
+  roomId: string,
+  roundId: string,
+): Promise<void> {
+  const open = await transaction.round.findFirst({
+    where: { id: roundId, roomId, revealedAt: null },
+    select: { id: true },
+  });
+
+  if (open === null) {
+    throw new RoundAlreadyRevealedError();
+  }
+}
 
 export class PrismaRoomRepository implements RoomRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -80,22 +96,28 @@ export class PrismaRoomRepository implements RoomRepository {
   castEstimate(roomId: string, roundId: string, estimate: Estimate): Promise<void> {
     const { participantId, value, castAt } = estimate;
 
-    return this.bumpingRevision(roomId, (transaction) =>
-      transaction.estimate.upsert({
+    return this.bumpingRevision(roomId, async (transaction) => {
+      await stillOpen(transaction, roomId, roundId);
+
+      await transaction.estimate.upsert({
         where: { roundId_participantId: { roundId, participantId } },
         create: { roundId, participantId, value, castAt },
         update: { value, castAt },
-      }),
-    );
+      });
+    });
   }
 
   revealRound(roomId: string, roundId: string, at: Date): Promise<void> {
-    return this.bumpingRevision(roomId, (transaction) =>
-      transaction.round.update({
+    return this.bumpingRevision(roomId, async (transaction) => {
+      const { count } = await transaction.round.updateMany({
         where: { id: roundId, roomId, revealedAt: null },
         data: { revealedAt: at },
-      }),
-    );
+      });
+
+      if (count === 0) {
+        throw new RoundAlreadyRevealedError();
+      }
+    });
   }
 
   private async bumpingRevision(

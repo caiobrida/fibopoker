@@ -1,6 +1,7 @@
 import type { Participant, RevealedEstimate } from '@fibopoker/shared';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motionDuration } from '../shared/ui/motion.ts';
+import { standingOfEachValue, type Standing } from './estimate-groups.ts';
 import { seatsAround, type SeatPosition } from './seating.ts';
 
 export type SeatedParticipant = {
@@ -9,6 +10,7 @@ export type SeatedParticipant = {
   mine: boolean;
   hasVoted: boolean;
   estimate: string | null;
+  standing: Standing;
   position: SeatPosition;
   state: 'seated' | 'vacating';
 };
@@ -18,17 +20,25 @@ function seatedAround(
   selfId: string | null,
   revealed: RevealedEstimate[] | null,
 ): SeatedParticipant[] {
-  const shown = new Map(revealed?.map(({ participantId, value }) => [participantId, value]));
+  const revealedTo = new Map(
+    (revealed ?? []).map(({ participantId, value }) => [participantId, value]),
+  );
+  const standings = standingOfEachValue(revealed ?? []);
 
-  return seatsAround(participants).map(({ occupant, position }) => ({
-    id: occupant.id,
-    nickname: occupant.nickname,
-    mine: occupant.id === selfId,
-    hasVoted: occupant.hasVoted,
-    estimate: shown.get(occupant.id) ?? null,
-    position,
-    state: 'seated',
-  }));
+  return seatsAround(participants).map(({ occupant, position }) => {
+    const estimate = revealedTo.get(occupant.id) ?? null;
+
+    return {
+      id: occupant.id,
+      nickname: occupant.nickname,
+      mine: occupant.id === selfId,
+      hasVoted: occupant.hasVoted,
+      estimate,
+      standing: estimate === null ? 'neutral' : (standings.get(estimate) ?? 'neutral'),
+      position,
+      state: 'seated',
+    };
+  });
 }
 
 export function useSeating(

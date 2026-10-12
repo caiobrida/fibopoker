@@ -1,7 +1,7 @@
-import type { RoomSnapshot } from '@fibopoker/shared';
 import { describe, expect, it } from 'vitest';
 import { InMemoryRoomRepository } from '../testing/in-memory-room-repository.js';
 import { ManualClock } from '../testing/manual-clock.js';
+import { theRevealedRound } from '../testing/snapshot-rounds.js';
 import { CastEstimate } from './cast-estimate.js';
 import { CreateRoom } from './create-room.js';
 import { GetRoomSnapshot } from './get-room-snapshot.js';
@@ -32,14 +32,6 @@ async function aRoomBeingEstimated(rooms: InMemoryRoomRepository, clock: ManualC
   });
 
   return { roomId, roundId, alice: alice.token, bob: bob.token };
-}
-
-function theRevealedRound(snapshot: RoomSnapshot) {
-  if (snapshot.round?.state !== 'revealed') {
-    throw new Error('No Round is revealed in this snapshot');
-  }
-
-  return snapshot.round;
 }
 
 describe('Revealing a Round', () => {
@@ -366,6 +358,40 @@ describe('A revealed Round', () => {
     const after = await getRoomSnapshot.execute({ roomId, token: null });
 
     expect(after.revision).toBe(before.revision);
+  });
+
+  it('refuses the second of two Reveals that read the Room before either wrote', async () => {
+    const rooms = new InMemoryRoomRepository();
+    const clock = new ManualClock(A_MONDAY_MORNING);
+    const { roomId, roundId, alice, bob } = await aRoomBeingEstimated(rooms, clock);
+    const revealRound = new RevealRound(rooms, clock);
+
+    const raced = await Promise.allSettled([
+      revealRound.execute({ roomId, roundId, token: alice }),
+      revealRound.execute({ roomId, roundId, token: bob }),
+    ]);
+
+    expect(raced.map(({ status }) => status)).toEqual(['fulfilled', 'rejected']);
+    expect((raced[1] as PromiseRejectedResult).reason).toBeInstanceOf(RoundAlreadyRevealedError);
+  });
+
+  it('refuses an Estimate cast by somebody who read the Room before the Reveal', async () => {
+    const rooms = new InMemoryRoomRepository();
+    const clock = new ManualClock(A_MONDAY_MORNING);
+    const { roomId, roundId, alice, bob } = await aRoomBeingEstimated(rooms, clock);
+    await new CastEstimate(rooms, clock).execute({ roomId, roundId, token: alice, value: '3' });
+
+    const raced = await Promise.allSettled([
+      new RevealRound(rooms, clock).execute({ roomId, roundId, token: alice }),
+      new CastEstimate(rooms, clock).execute({ roomId, roundId, token: bob, value: '8' }),
+    ]);
+
+    expect(raced.map(({ status }) => status)).toEqual(['fulfilled', 'rejected']);
+    expect((raced[1] as PromiseRejectedResult).reason).toBeInstanceOf(RoundAlreadyRevealedError);
+
+    const snapshot = await new GetRoomSnapshot(rooms, clock).execute({ roomId, token: null });
+
+    expect(theRevealedRound(snapshot).estimates).toEqual([expect.objectContaining({ value: '3' })]);
   });
 
   it('steps aside once the next Round is opened', async () => {

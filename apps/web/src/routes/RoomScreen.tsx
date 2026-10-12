@@ -173,9 +173,9 @@ function TheRoom({
           ) : null
         }
       />
-      {round?.state === 'open' && castEstimate.failure !== null ? (
+      {castEstimate.failure === null ? null : (
         <Alert>Your Estimate did not reach the Room: {castEstimate.failure}</Alert>
-      ) : null}
+      )}
       {round?.state === 'open' && revealRound.failure !== null ? (
         <Alert>The Round would not reveal: {revealRound.failure}</Alert>
       ) : null}

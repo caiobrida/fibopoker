@@ -1,16 +1,9 @@
 import type { RevealedEstimate } from '@fibopoker/shared';
 import { Note } from '../shared/ui/Screen.tsx';
-import { groupedEstimates, type EstimateGroup } from './estimate-groups.ts';
+import { groupedEstimates, STANDING_READS_AS, type EstimateGroup } from './estimate-groups.ts';
 import styles from './RevealedEstimates.module.css';
 
-const STANDING_READS_AS: Record<EstimateGroup['standing'], string> = {
-  neutral: '',
-  agreed: ', agreed',
-  lowest: ', the lowest',
-  highest: ', the highest',
-};
-
-function whatCameBack(howMany: number): string {
+function whatWasRevealed(howMany: number): string {
   if (howMany === 0) {
     return 'Nobody voted';
   }
@@ -50,7 +43,7 @@ export function RevealedEstimates({ estimates }: { estimates: RevealedEstimate[]
           ))}
         </ul>
       )}
-      <Note>{whatCameBack(estimates.length)}</Note>
+      <Note>{whatWasRevealed(estimates.length)}</Note>
     </>
   );
 }

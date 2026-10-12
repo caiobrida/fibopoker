@@ -72,7 +72,7 @@ async function bodyOf<T>(response: Response, schema: ZodType<T>): Promise<T> {
 }
 
 export async function createRoom(): Promise<RoomSnapshot> {
-  const response = await successful(await send('/rooms', { method: 'POST' }));
+  const response = await send('/rooms', { method: 'POST' }).then(successful);
 
   return bodyOf(response, roomSnapshotSchema);
 }
@@ -120,10 +120,8 @@ export async function revealRound(
   roundId: string,
   token: string | null,
 ): Promise<void> {
-  await successful(
-    await send(`/rooms/${roomId}/rounds/${roundId}/reveal`, {
-      method: 'POST',
-      headers: authorization(token),
-    }),
-  );
+  await send(`/rooms/${roomId}/rounds/${roundId}/reveal`, {
+    method: 'POST',
+    headers: authorization(token),
+  }).then(successful);
 }

@@ -35,7 +35,12 @@ function inReadingOrder(one: EstimateGroup, other: EstimateGroup): number {
   return mine === null ? 1 : -1;
 }
 
-function standingOf(value: string, lowest: number | null, highest: number | null): Standing {
+function standingOf(
+  value: string,
+  howMany: number,
+  lowest: number | null,
+  highest: number | null,
+): Standing {
   const number = asNumber(value);
 
   if (number === null) {
@@ -43,7 +48,7 @@ function standingOf(value: string, lowest: number | null, highest: number | null
   }
 
   if (lowest === highest) {
-    return 'agreed';
+    return howMany > 1 ? 'agreed' : 'neutral';
   }
 
   if (number === lowest) {
@@ -71,7 +76,18 @@ export function groupedEstimates(estimates: RevealedEstimate[]): EstimateGroup[]
     .map(([value, count]) => ({
       value,
       howMany: count,
-      standing: standingOf(value, lowest, highest),
+      standing: standingOf(value, count, lowest, highest),
     }))
     .sort(inReadingOrder);
+}
+
+export const STANDING_READS_AS: Record<Standing, string> = {
+  neutral: '',
+  agreed: ', agreed',
+  lowest: ', the lowest',
+  highest: ', the highest',
+};
+
+export function standingOfEachValue(estimates: RevealedEstimate[]): Map<string, Standing> {
+  return new Map(groupedEstimates(estimates).map(({ value, standing }) => [value, standing]));
 }

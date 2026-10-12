@@ -1,8 +1,16 @@
 import type { Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
-import { RoomNotFoundError } from '../domain/room-errors.js';
+import { RoomNotFoundError, RoundAlreadyRevealedError } from '../domain/room-errors.js';
 import type { RoomRepository } from '../domain/room-repository.js';
-import type { Estimate, Round } from '../domain/round.js';
+import { isOpen, type Estimate, type Round } from '../domain/round.js';
+
+function stillOpen(round: Round): Round {
+  if (!isOpen(round)) {
+    throw new RoundAlreadyRevealedError();
+  }
+
+  return round;
+}
 
 function copyOfRound(round: Round): Round {
   return { ...round, estimates: round.estimates.map((estimate) => ({ ...estimate })) };
@@ -72,7 +80,9 @@ export class InMemoryRoomRepository implements RoomRepository {
     this.bumpingRevision(roomId, (room) => ({
       ...room,
       rounds: room.rounds.map((round) =>
-        round.id === roundId ? { ...round, estimates: holding(round.estimates, estimate) } : round,
+        round.id === roundId
+          ? { ...stillOpen(round), estimates: holding(round.estimates, estimate) }
+          : round,
       ),
     }));
   }
@@ -81,7 +91,7 @@ export class InMemoryRoomRepository implements RoomRepository {
     this.bumpingRevision(roomId, (room) => ({
       ...room,
       rounds: room.rounds.map((round) =>
-        round.id === roundId ? { ...round, revealedAt: at } : round,
+        round.id === roundId ? { ...stillOpen(round), revealedAt: at } : round,
       ),
     }));
   }
