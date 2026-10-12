@@ -285,3 +285,17 @@ Declaring the library beat rewriting the expression, because the expression was 
 and every ES2022-or-later builtin a future ticket reaches for would have been the same trap. The
 only honest reading of a deploy that compiles against a library older than the one the repo targets
 is that the library needed saying out loud.
+
+**The same pull request exposed a flaky test of my own making.** "Orders the Estimates without
+saying who voted first" cast the votes in `localeCompare`-descending order and asserted only that
+the revealed array was _not_ that — a negative over randomly drawn nanoid identifiers. The revealed
+array is ordered by plain comparison, so whenever the two collations disagree for a pair (mixed case
+and `-`/`_`, the very hazard this ticket's comparator exists to dodge) "descending by locale"
+coincides with "ascending by codepoint" and the assertion fails. Drawing 100,000 pairs puts that at
+**18.6% of runs** — about one in five, which is how it passed three local runs and the first CI run
+before failing the second.
+
+It now asserts the positive: the votes are cast in the exact reverse of identifier order and the
+revealed array must equal identifier order. The reverse of a two-element array is never equal to it,
+so the test cannot pass by luck — 20 consecutive runs green, and 8 of 8 red with the `sort` removed,
+where the old assertion would have caught that leak only on a lucky draw.

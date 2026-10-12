@@ -152,16 +152,15 @@ describe('Revealing a Round', () => {
     expect(theRevealedRound(snapshot).estimates).toEqual([expect.objectContaining({ value: '8' })]);
   });
 
-  it('orders the Estimates without saying who voted first', async () => {
+  it('orders the Estimates by Participant, not by who voted first', async () => {
     const rooms = new InMemoryRoomRepository();
     const clock = new ManualClock(A_MONDAY_MORNING);
     const { roomId, roundId, alice, bob } = await aRoomBeingEstimated(rooms, clock);
     const castEstimate = new CastEstimate(rooms, clock);
     const getRoomSnapshot = new GetRoomSnapshot(rooms, clock);
     const open = await getRoomSnapshot.execute({ roomId, token: null });
-    const whoVotesFirst = [...open.participants].sort((one, other) =>
-      other.id.localeCompare(one.id),
-    );
+    const byParticipant = [...open.participants].sort((one, other) => (one.id < other.id ? -1 : 1));
+    const whoVotesFirst = [...byParticipant].reverse();
 
     for (const { nickname } of whoVotesFirst) {
       await castEstimate.execute({
@@ -177,8 +176,8 @@ describe('Revealing a Round', () => {
 
     const snapshot = await getRoomSnapshot.execute({ roomId, token: null });
 
-    expect(theRevealedRound(snapshot).estimates).not.toEqual(
-      whoVotesFirst.map(({ id }) => ({ participantId: id, value: '5' })),
+    expect(theRevealedRound(snapshot).estimates).toEqual(
+      byParticipant.map(({ id }) => ({ participantId: id, value: '5' })),
     );
   });
 
