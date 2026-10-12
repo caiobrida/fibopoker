@@ -16,7 +16,7 @@
   width: 100%;
 }
 
-.moving {
+.next {
   display: flex;
   width: 100%;
   max-width: var(--measure-narrow);

@@ -37,5 +37,5 @@ Estimating an already-revealed task again after discussion. It opens a new Round
 _Avoid_: retry, attempt, round 2
 
 **Final Estimate**:
-The single value a team settles on for a Round after seeing the Estimates and discussing them. It is agreed by people, never computed from the Estimates — a Round can be revealed without ever receiving one.
+The Deck value a team settles on for a Round after seeing the Estimates and discussing them. It is agreed by people, never computed from the Estimates — a Round can be revealed without ever receiving one, and the one it has can be replaced. It is the only thing a revealed Round will still accept.
 _Avoid_: result, consensus, average, final score

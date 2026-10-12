@@ -29,7 +29,7 @@ export function AfterTheReveal({
           <Alert>The Final Estimate did not reach the Room: {settling.failure}</Alert>
         )}
       </section>
-      <section className={styles.moving}>
+      <section className={styles.next}>
         <OpenTheRound action={opening} />
       </section>
     </div>

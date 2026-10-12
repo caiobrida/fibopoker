@@ -34,7 +34,7 @@ export function OpenTheRound({ action }: { action: OpenRoundAction }) {
       <Button variant="primary" type="submit" disabled={!proposed.success || action.isOpening}>
         {action.isOpening ? 'Opening…' : 'Open the Round'}
       </Button>
-      <Note>Leave it empty for a vote nobody planned.</Note>
+      <Note>Leave it empty for a Round nobody planned.</Note>
       {action.failure === null ? null : <Alert>The Round would not open: {action.failure}</Alert>}
     </form>
   );

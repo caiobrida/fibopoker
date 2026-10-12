@@ -24,16 +24,8 @@
 }
 
 .agreed {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--estimate-width);
-  height: var(--estimate-height);
+  composes: slot from '../shared/ui/estimate-slot.module.css';
+
   background-color: var(--state-voted-surface);
-  border: var(--border-width) solid var(--state-voted-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-base);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
+  border-color: var(--state-voted-border);
 }

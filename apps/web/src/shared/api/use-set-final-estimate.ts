@@ -22,6 +22,8 @@ export function useSetFinalEstimate(
     },
   });
 
+  const refusedThisRound = mutation.error !== null && mutation.variables?.round === roundId;
+
   return {
     record: (value: string) => {
       if (roundId !== null) {
@@ -29,6 +31,6 @@ export function useSetFinalEstimate(
       }
     },
     recording: mutation.isPending ? (mutation.variables?.value ?? null) : null,
-    failure: mutation.error === null ? null : mutation.error.message,
+    failure: refusedThisRound ? mutation.error.message : null,
   };
 }
