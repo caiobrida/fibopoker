@@ -104,14 +104,14 @@ function TheHand({
   round,
   estimating,
   settling,
-  revoting,
+  reVoting,
   opening,
   seated,
 }: {
   round: RoomSnapshot['round'];
   estimating: CastEstimateAction;
   settling: SetFinalEstimateAction;
-  revoting: ReVoteAction;
+  reVoting: ReVoteAction;
   opening: OpenRoundAction;
   seated: boolean;
 }) {
@@ -135,7 +135,7 @@ function TheHand({
     <AfterTheReveal
       finalEstimate={round.finalEstimate}
       settling={settling}
-      revoting={revoting}
+      reVoting={reVoting}
       opening={opening}
     />
   );
@@ -218,7 +218,7 @@ function TheRoom({
             round={round}
             estimating={castEstimate}
             settling={setFinalEstimate}
-            revoting={reVote}
+            reVoting={reVote}
             opening={openRound}
             seated={self !== null}
           />

@@ -45,7 +45,7 @@ export function presentAt(room: Room, now: Date): Room {
   };
 }
 
-export function openRoundOf(room: Room): Round | null {
+function openRoundOf(room: Room): Round | null {
   return room.rounds.find(isOpen) ?? null;
 }
 

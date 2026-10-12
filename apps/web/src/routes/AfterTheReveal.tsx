@@ -9,12 +9,12 @@ import { OpenTheRound } from './OpenTheRound.tsx';
 export function AfterTheReveal({
   finalEstimate,
   settling,
-  revoting,
+  reVoting,
   opening,
 }: {
   finalEstimate: string | null;
   settling: SetFinalEstimateAction;
-  revoting: ReVoteAction;
+  reVoting: ReVoteAction;
   opening: OpenRoundAction;
 }) {
   return (
@@ -33,12 +33,12 @@ export function AfterTheReveal({
         )}
       </section>
       <section className={styles.again}>
-        <Button variant="secondary" onClick={revoting.again} disabled={revoting.isReVoting}>
-          {revoting.isReVoting ? 'Re-voting…' : 'Re-vote'}
+        <Button variant="secondary" onClick={reVoting.again} disabled={reVoting.isReVoting}>
+          {reVoting.isReVoting ? 'Re-voting…' : 'Re-vote'}
         </Button>
         <Note>A fresh Round on the same task. This one stays on the record either way.</Note>
-        {revoting.failure === null ? null : (
-          <Alert>The Re-vote would not open: {revoting.failure}</Alert>
+        {reVoting.failure === null ? null : (
+          <Alert>The Re-vote would not open: {reVoting.failure}</Alert>
         )}
       </section>
       <section className={styles.next}>
