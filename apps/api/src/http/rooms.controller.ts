@@ -2,12 +2,14 @@ import {
   castEstimateRequestSchema,
   joinRoomRequestSchema,
   openRoundRequestSchema,
+  setFinalEstimateRequestSchema,
   type CastEstimateRequest,
   type JoinRoomRequest,
   type JoinRoomResponse,
   type OpenRoundRequest,
   type OpenRoundResponse,
   type RoomSnapshot,
+  type SetFinalEstimateRequest,
 } from '@fibopoker/shared';
 import {
   Body,
@@ -26,6 +28,7 @@ import { GetRoomSnapshot } from '../domain/get-room-snapshot.js';
 import { JoinRoom } from '../domain/join-room.js';
 import { OpenRound } from '../domain/open-round.js';
 import { RevealRound } from '../domain/reveal-round.js';
+import { SetFinalEstimate } from '../domain/set-final-estimate.js';
 import { bearerToken } from './bearer-token.js';
 import { ZodValidationPipe } from './zod-validation.pipe.js';
 
@@ -38,6 +41,7 @@ export class RoomsController {
     private readonly openRound: OpenRound,
     private readonly castEstimate: CastEstimate,
     private readonly revealRound: RevealRound,
+    private readonly setFinalEstimate: SetFinalEstimate,
   ) {}
 
   @Post()
@@ -88,6 +92,21 @@ export class RoomsController {
     @Body(new ZodValidationPipe(castEstimateRequestSchema)) { value }: CastEstimateRequest,
   ): Promise<void> {
     return this.castEstimate.execute({
+      roomId,
+      roundId,
+      token: bearerToken(authorization),
+      value,
+    });
+  }
+
+  @Put(':roomId/rounds/:roundId/final-estimate')
+  settle(
+    @Param('roomId') roomId: string,
+    @Param('roundId') roundId: string,
+    @Headers('authorization') authorization: string | undefined,
+    @Body(new ZodValidationPipe(setFinalEstimateRequestSchema)) { value }: SetFinalEstimateRequest,
+  ): Promise<void> {
+    return this.setFinalEstimate.execute({
       roomId,
       roundId,
       token: bearerToken(authorization),

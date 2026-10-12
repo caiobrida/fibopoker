@@ -11,18 +11,20 @@ function stateOf(value: string, chosen: string | null, choosing: string | null) 
 }
 
 export function Deck({
+  label,
   chosen,
   choosing,
   disabled,
   onChoose,
 }: {
+  label: string;
   chosen: string | null;
   choosing: string | null;
   disabled: boolean;
   onChoose: (value: string) => void;
 }) {
   return (
-    <div className={styles.deck} role="group" aria-label="The Deck">
+    <div className={styles.deck} role="group" aria-label={label}>
       {DECK.map((value) => (
         <EstimateCard
           key={value}

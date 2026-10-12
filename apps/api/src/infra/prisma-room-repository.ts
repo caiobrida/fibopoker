@@ -1,6 +1,6 @@
 import type { Participant } from '../domain/participant.js';
 import type { Room } from '../domain/room.js';
-import { RoundAlreadyRevealedError } from '../domain/room-errors.js';
+import { RoundAlreadyRevealedError, RoundStillOpenError } from '../domain/room-errors.js';
 import type { RoomRepository } from '../domain/room-repository.js';
 import type { Estimate, Round } from '../domain/round.js';
 import type { Prisma, PrismaClient } from '../generated/prisma/client.js';
@@ -52,17 +52,20 @@ export class PrismaRoomRepository implements RoomRepository {
           lastSeenAt,
         }),
       ),
-      rounds: room.rounds.map(({ id: roundId, title, openedAt, revealedAt, estimates }) => ({
-        id: roundId,
-        title,
-        openedAt,
-        revealedAt,
-        estimates: estimates.map(({ participantId, value, castAt }) => ({
-          participantId,
-          value,
-          castAt,
-        })),
-      })),
+      rounds: room.rounds.map(
+        ({ id: roundId, title, openedAt, revealedAt, finalEstimate, estimates }) => ({
+          id: roundId,
+          title,
+          openedAt,
+          revealedAt,
+          finalEstimate,
+          estimates: estimates.map(({ participantId, value, castAt }) => ({
+            participantId,
+            value,
+            castAt,
+          })),
+        }),
+      ),
     };
   }
 
@@ -88,6 +91,7 @@ export class PrismaRoomRepository implements RoomRepository {
           title: round.title,
           openedAt: round.openedAt,
           revealedAt: round.revealedAt,
+          finalEstimate: round.finalEstimate,
         },
       }),
     );
@@ -116,6 +120,19 @@ export class PrismaRoomRepository implements RoomRepository {
 
       if (count === 0) {
         throw new RoundAlreadyRevealedError();
+      }
+    });
+  }
+
+  setFinalEstimate(roomId: string, roundId: string, value: string): Promise<void> {
+    return this.bumpingRevision(roomId, async (transaction) => {
+      const { count } = await transaction.round.updateMany({
+        where: { id: roundId, roomId, revealedAt: { not: null } },
+        data: { finalEstimate: value },
+      });
+
+      if (count === 0) {
+        throw new RoundStillOpenError();
       }
     });
   }

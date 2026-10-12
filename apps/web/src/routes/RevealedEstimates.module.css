@@ -18,18 +18,9 @@
 }
 
 .value {
-  display: flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--estimate-width);
-  height: var(--estimate-height);
+  composes: slot from '../shared/ui/estimate-slot.module.css';
+
   background-color: var(--bg-base);
-  border: var(--border-width) solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-base);
-  font-weight: var(--weight-medium);
-  line-height: var(--leading-tight);
 }
 
 .group[data-standing='agreed'] .value {
