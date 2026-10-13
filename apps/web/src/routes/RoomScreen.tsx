@@ -1,5 +1,4 @@
 import type { Participant, RoomSnapshot } from '@fibopoker/shared';
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import {
   useCastEstimate,
@@ -23,6 +22,7 @@ import {
 import { Alert } from '../shared/ui/Alert.tsx';
 import { Button } from '../shared/ui/Button.tsx';
 import { Heading, Lead, Note, Screen } from '../shared/ui/Screen.tsx';
+import { useClipboard } from '../shared/ui/use-clipboard.ts';
 import { AfterTheReveal } from './AfterTheReveal.tsx';
 import { Deck } from './Deck.tsx';
 import { EntryPanel } from './EntryPanel.tsx';
@@ -30,14 +30,11 @@ import { FinishedRounds } from './FinishedRounds.tsx';
 import { sharedWithSomebodyElse } from './nicknames.ts';
 import { roomUrl } from './room-path.ts';
 import styles from './RoomScreen.module.css';
+import { roundsAsText } from './rounds-as-text.ts';
 import { RoomTable } from './RoomTable.tsx';
 import { RoundInTheMiddle } from './RoundInTheMiddle.tsx';
 import { useArrival, type Arrival } from './use-arrival.ts';
 import { YourPresence } from './YourPresence.tsx';
-
-type CopyOutcome = 'untouched' | 'copied' | 'blocked';
-
-const COPY_FEEDBACK_MS = 2000;
 
 export function RoomScreen() {
   const { roomId } = useParams();
@@ -55,41 +52,51 @@ function NoSuchRoom() {
 }
 
 function ShareBlock({ link }: { link: string }) {
-  const [copyOutcome, setCopyOutcome] = useState<CopyOutcome>('untouched');
-
-  useEffect(() => {
-    if (copyOutcome === 'untouched') {
-      return;
-    }
-
-    const timer = window.setTimeout(() => setCopyOutcome('untouched'), COPY_FEEDBACK_MS);
-
-    return () => window.clearTimeout(timer);
-  }, [copyOutcome]);
-
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopyOutcome('copied');
-    } catch {
-      setCopyOutcome('blocked');
-    }
-  }
+  const clipboard = useClipboard();
 
   return (
-    <div className={styles.share}>
+    <div className={styles.panel}>
       <Note>Room link</Note>
-      <p className={styles.link}>{link}</p>
+      <p className={styles.verbatim}>{link}</p>
       <div>
-        <Button variant="secondary" onClick={() => void copyLink()}>
-          {copyOutcome === 'copied' ? 'Copied' : 'Copy link'}
+        <Button variant="secondary" onClick={() => void clipboard.copy(link)}>
+          {clipboard.outcome === 'copied' ? 'Copied' : 'Copy link'}
         </Button>
       </div>
       <Note>
         Paste it wherever the team talks — it keeps working for as long as the team keeps using it.
       </Note>
-      {copyOutcome === 'blocked' ? (
+      {clipboard.outcome === 'blocked' ? (
         <Alert>The browser blocked copying — select the link above and copy it by hand.</Alert>
+      ) : null}
+    </div>
+  );
+}
+
+function ExportBlock({ room }: { room: RoomSnapshot }) {
+  const clipboard = useClipboard();
+  const rounds = roundsAsText(room);
+
+  if (rounds.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className={styles.panel}>
+      <Note>Take it to the board</Note>
+      <div>
+        <Button variant="secondary" onClick={() => void clipboard.copy(rounds)}>
+          {clipboard.outcome === 'copied' ? 'Copied' : 'Copy every Round'}
+        </Button>
+      </div>
+      <Note>
+        One line per Round, carrying the Final Estimate the team agreed on — nothing averaged.
+      </Note>
+      {clipboard.outcome === 'blocked' ? (
+        <>
+          <Alert>The browser blocked copying — select the list below and copy it by hand.</Alert>
+          <pre className={styles.exported}>{rounds}</pre>
+        </>
       ) : null}
     </div>
   );
@@ -261,6 +268,7 @@ function TheRoom({
         <Alert>The Round would not reveal: {revealRound.failure}</Alert>
       ) : null}
       <FinishedRounds rounds={room.history} />
+      <ExportBlock room={room} />
       {arrival === 'seated' ? <ShareBlock link={roomUrl(room.id)} /> : null}
     </Screen>
   );
